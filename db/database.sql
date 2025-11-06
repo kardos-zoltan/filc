@@ -65,4 +65,12 @@ CREATE TABLE IF NOT EXISTS `student_grades` (
     FOREIGN KEY (`grade_id`) REFERENCES `grades`(`id`) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS `sessions` (
+    `id` VARCHAR(64) NOT NULL PRIMARY KEY,
+    `user_id` BIGINT NOT NULL,
+    `expires_at` DATETIME NOT NULL,
+
+    FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
+)
+
 COMMIT;
