@@ -17,6 +17,7 @@ declare module "h3" {
 
             register(name: string, email: string, hash: HashedPassword, typeId: number): void,
             authenticate(email: string, password: string): Promise<null | "User not found" | "Incorrect password">
+            unauthenticate(): void
 
             isAuthed(strings: TemplateStringsArray,  ...values: Primitive[]): Promise<boolean | Error>
 
@@ -29,7 +30,11 @@ type User = {
     id: number,
     type: string,
     name: string
-}
+};
+
+const COOKIES = {
+    SESSION_TOKEN: "sessionToken"
+};
 
 function hashPassword(password: string, salt: Buffer<ArrayBuffer> = crypto.randomBytes(16)): { hash: string, salt: string }  {    
     const hash = crypto.scryptSync(
@@ -83,7 +88,7 @@ async function getUser(event: H3Event, db: Database, sessionToken?: string): Pro
             WHERE id = ${sessionId};
         `;
 
-        deleteCookie(event, "sessionToken");
+        deleteCookie(event, COOKIES.SESSION_TOKEN);
         
         return null;
     }
@@ -117,7 +122,7 @@ async function getUser(event: H3Event, db: Database, sessionToken?: string): Pro
 export default defineEventHandler(async (event) => {
     const db = useDatabase();
 
-    const sessionToken = getCookie(event, "sessionToken");
+    const sessionToken = getCookie(event, COOKIES.SESSION_TOKEN);
     const user = await getUser(event, db, sessionToken);
 
     event.context.auth = {
@@ -140,7 +145,7 @@ export default defineEventHandler(async (event) => {
         storeSessionInCookies(sessionToken) {
             const DAYS_30_FROM_NOW = 30 * 24 * 60 * 60;
             
-            setCookie(event, "sessionToken", sessionToken, {
+            setCookie(event, COOKIES.SESSION_TOKEN, sessionToken, {
                 httpOnly: true,
                 maxAge: DAYS_30_FROM_NOW
             });
@@ -184,6 +189,20 @@ export default defineEventHandler(async (event) => {
             this.storeSessionInCookies(sessionToken);
 
             return null;
+        },
+
+        unauthenticate() {
+            if (!this.user) return;
+
+            const sessionToken = getCookie(event, COOKIES.SESSION_TOKEN);
+            if (sessionToken == null) return;
+            
+            deleteCookie(event, COOKIES.SESSION_TOKEN, {
+                httpOnly: true
+            });
+            
+            const sessionId = generateSessionId(sessionToken);
+            db.sql`DELETE FROM sessions WHERE id = ${sessionId}`
         },
 
         user
