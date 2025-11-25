@@ -10,7 +10,8 @@ CREATE TABLE IF NOT EXISTS `users` (
     `type_id` TINYINT NOT NULL,
     `name` VARCHAR(255) NOT NULL,
     `email` VARCHAR(255) NOT NULL UNIQUE,
-    `password` VARCHAR(255) NOT NULL,
+    `hash` VARCHAR(172) NOT NULL,
+    `salt` VARCHAR(24) NOT NULL,
     
     FOREIGN KEY (`type_id`) REFERENCES `user_types`(`id`) ON DELETE CASCADE
 );
@@ -68,7 +69,7 @@ CREATE TABLE IF NOT EXISTS `student_grades` (
 CREATE TABLE IF NOT EXISTS `sessions` (
     `id` VARCHAR(64) NOT NULL PRIMARY KEY,
     `user_id` INT NOT NULL,
-    `expires_at` DATETIME NOT NULL,
+    `expires_at` DATETIME NOT NULL DEFAULT ADDDATE(NOW(), INTERVAL 30 DAY),
 
     FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
 );
