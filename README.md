@@ -2,6 +2,11 @@
 
 A filc egy oktatási rendszer és e-napló.
 
+## Linkek
+
+- Github: https://github.com/kardos-zoltan/filc
+- Trello: https://trello.com/b/337W1zwT/filc
+
 ## Tagok
 
 - Kardos Zoltán
