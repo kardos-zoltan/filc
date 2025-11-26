@@ -1,75 +1,45 @@
-# Nuxt Minimal Starter
+# Filc
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+A filc egy oktatási rendszer és e-napló.
 
-## Setup
+## Tagok
 
-Make sure to install dependencies:
+- Kardos Zoltán
+- Döme Zoltán
 
-```bash
-# npm
+## Futtatás
+
+### Felállítás
+
+Kötelező programok:
+- node: >=v22.18.0
+- npm: >=11.6.2
+- MariaDB: >=10.4.32 (ha lehet akkor XAMPP >=v3.0.0-n keresztül)
+
+Futtassa ezt a parancsot a projekt mappájában hogy letelepítse a kötelező csomagokat.
+```sh
 npm install
-
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
 ```
 
-## Development Server
+Majd csináljon egy `filc` nevű adatbázist MariaDB-n belül, 
+`utf8mb4_unicode_520_ci` illesztéssel, majd töltse a `db/filc.sql` nevű fájlt.
 
-Start the development server on `http://localhost:3000`:
+### Futtatás (fejlesztés)
 
-```bash
-# npm
+Indítsa el az adatbázis szervert, majd futtassa a következő parancsot hogy
+elindítsa a fejlesztési szervert.
+```sh
 npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
 ```
 
-## Production
+### Építés (produkció)
 
-Build the application for production:
-
-```bash
-# npm
+Futtassa a következő parancsot hogy építsen egy produkcióra képes változatát a projektnek
+```sh
 npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
 ```
 
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
+Majd futtatáshoz, indítsa el az adatbázist, és futtassa a következő parancsot
+```sh
+node ./output/server/index.mjs
 ```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
