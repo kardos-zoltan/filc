@@ -19,7 +19,7 @@ A filc egy oktatási rendszer és e-napló.
 Kötelező programok:
 - node: >=v22.18.0
 - npm: >=11.6.2
-- MariaDB: >=10.4.32 (ha lehet akkor XAMPP >=v3.0.0-n keresztül)
+- MariaDB: >=10.4.32 (ha lehet akkor XAMPP >=v3.3.0-n keresztül)
 
 Futtassa ezt a parancsot a projekt mappájában hogy letelepítse a kötelező csomagokat.
 ```sh
