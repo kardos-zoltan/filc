@@ -1,2 +1,8 @@
-@import "tailwindcss";
-@import "@nuxt/ui";
+@font-face {
+    font-family: Roboto;
+    src: url(./Roboto-VariableFont_wdth\,wght.ttf);
+}
+
+* {
+    font-family: Roboto;
+}
