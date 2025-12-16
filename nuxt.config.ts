@@ -4,8 +4,8 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: [],
   css: [
-    "~/assets/css/main.css",
-    "~/assets/css/bootstrap-custom.scss"
+    "~/assets/css/bootstrap-custom.scss",
+    "~/assets/css/main.css"
   ],
   nitro: {
     experimental: {
