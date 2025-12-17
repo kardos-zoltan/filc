@@ -2,9 +2,17 @@
 @import "bootstrap/scss/variables";
 @import "bootstrap/scss/mixins";
 
+$body-bg: rgba(255, 248, 225);
+
+
 $custom-colors: (
-    "primary": #0f172a
+    "primary": #0f172a,
+    "secondary": rgba(#64748b, 0.25),
+    "form": #62748E,
+    "link-primary": #FFF8E1,
+    "link-secondary": rgb(41 37 36)
 );
+
 
 $theme-colors: map-merge($theme-colors, $custom-colors);
 

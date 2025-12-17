@@ -15,12 +15,23 @@ export default defineNuxtConfig({
     database: {
       default: {
         connector: "mysql2",
-        options: { 
+        options: {
           database: "filc",
           user: "root",
           password: ""
         }
       }
     }
+  },
+  app: {
+    head: {
+      title: 'Filc',
+      htmlAttrs: {
+        lang: 'hu',
+      },
+      link: [
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+      ],
+    },
   },
 })

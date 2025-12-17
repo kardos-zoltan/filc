@@ -11,4 +11,14 @@
 
 * {
     font-family: Roboto;
+    color: #292524;
+}
+
+.btn-primary:hover{
+    background-color: color-mix(in srgb, #0f172a, white 25%);
+}
+
+.link {
+    text-decoration: none;
+    background-color: transparent;
 }

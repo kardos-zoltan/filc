@@ -5,7 +5,7 @@
 </script>
 
 <template>
-    <button v-bind:class="`${props.class} btn w-auto`" v-bind="$attrs">
+    <button v-bind:class="`${props.class} btn w-auto border`" v-bind="$attrs">
         <slot></slot>
     </button>
 </template>
