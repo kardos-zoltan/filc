@@ -26,12 +26,6 @@ declare module "h3" {
     }
 }
 
-type User = {
-    id: number,
-    type: string,
-    name: string
-};
-
 const COOKIES = {
     SESSION_TOKEN: "sessionToken"
 };
@@ -104,10 +98,8 @@ async function getUser(event: H3Event, db: Database, sessionToken?: string): Pro
     }
 
     const userData = await db.sql`
-        SELECT users.id AS id, user_types.name AS type, users.name AS name
+        SELECT users.id AS id, users.name AS name
         FROM users
-        INNER JOIN user_types
-        ON users.type_id = user_types.id
         WHERE users.id = ${session.user_id}
         LIMIT 1;
     `;
