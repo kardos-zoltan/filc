@@ -14,17 +14,17 @@
         </div>
 
         <div class="row mb-5">
-            <NuxtLink class="link text-link-secondary" to="/login">
+            <NuxtLink class="link w-auto p-0" to="/login">
                 <button 
-                    class="btn w-auto border btn-secondary me-2"
+                    class="btn w-auto border btn-secondary text-link-secondary me-2"
                 >
                     Bejelentkezés
                 </button>
             </NuxtLink>
 
-            <NuxtLink class="link text-link-primary" to="/register">
+            <NuxtLink class="link w-auto p-0" to="/register">
                 <button 
-                    class="btn w-auto border btn-primary border"
+                    class="btn w-auto border btn-primary text-link-primary border"
                 >
                     Regisztráció
                 </button>

@@ -75,9 +75,9 @@
 
                 <div class="d-flex justify-content-center my-3">
                     <button class="btn w-auto border btn btn-primary me-2 text-link-primary">Bejelentkezés</button>
-                    <NuxtLink class="link text-link-secondary" to="/">
+                    <NuxtLink class="link" to="/">
                         <button 
-                            class="btn w-auto border btn-secondary" 
+                            class="btn w-auto border btn-secondary text-link-secondary" 
                             type="button" 
                         >
                             Vissza
