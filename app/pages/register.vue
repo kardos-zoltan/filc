@@ -89,14 +89,15 @@
                     >
                 </div>
                 <div class="d-flex justify-content-center my-3 mt-4">
-                    <Button class="btn-primary me-2 text-link-primary">Regisztráció</Button>
-                    <Button 
-                        class="btn-secondary" 
-                        type="button"
-                        @click="navigateTo('/')"
-                    >
-                        <NuxtLink class="link text-link-secondary" to="/">Vissza</NuxtLink>
-                    </Button>
+                    <button class="btn w-auto border btn-primary me-2 text-link-primary">Regisztráció</button>
+                    <NuxtLink class="link text-link-secondary" to="/">
+                        <button 
+                            class="btn w-auto border btn-secondary" 
+                            type="button"
+                        >
+                            Vissza
+                        </button>
+                    </NuxtLink>
                 </div>
             </form>
         </div>

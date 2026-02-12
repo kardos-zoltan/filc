@@ -14,19 +14,21 @@
         </div>
 
         <div class="row mb-5">
-            <Button 
-                class="btn-secondary me-2"
-                @click="navigateTo('/login')"
-            >
-                <NuxtLink class="link text-link-secondary" to="/login">Bejelentkezés</NuxtLink>
-            </Button>
-
-            <Button 
-                class="btn-primary border"
-                @click="navigateTo('/register')"
+            <NuxtLink class="link text-link-secondary" to="/login">
+                <button 
+                    class="btn w-auto border btn-secondary me-2"
                 >
-                <NuxtLink class="link text-link-primary" to="/register">Regisztráció</NuxtLink>
-            </Button>
+                    Bejelentkezés
+                </button>
+            </NuxtLink>
+
+            <NuxtLink class="link text-link-primary" to="/register">
+                <button 
+                    class="btn w-auto border btn-primary border"
+                >
+                    Regisztráció
+                </button>
+            </NuxtLink>
         </div>
 
         <div class="row mt-5">
