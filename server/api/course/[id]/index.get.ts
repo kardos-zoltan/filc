@@ -1,15 +1,18 @@
 import { z } from "zod";
 
+// Define the schema for the route parameters
 const paramsSchema = z.object({
     id: z.int()
 });
 
 export default defineEventHandler(async (event): Promise<void | Course> => {
+    // If not logged in, redirect to home
     if (event.context.auth.user == null) return sendRedirect(event, "/");    
     
     const db = useDatabase();
     const params = await getValidatedRouterParams(event, paramsSchema.parse)
 
+    // Select the course with given id, along with the average grade and teacher info
     const coursesResult = await db.sql`
         SELECT
             courses.id
@@ -47,6 +50,7 @@ export default defineEventHandler(async (event): Promise<void | Course> => {
         LIMIT 1
     `;
 
+    // Error handling
     if (coursesResult.rows == null || coursesResult.error) return sendError(event, new Error(import.meta.dev ? coursesResult.error : "SQL Error"));
 
     if (coursesResult.rows.length == 0) return sendRedirect(event, "/courses");

@@ -1,8 +1,10 @@
 export default defineEventHandler(async (event): Promise<void | Course[]> => {
+    // If not logged in, redirect to home
     if (event.context.auth.user == null) return sendRedirect(event, "/");
 
     const db = useDatabase();
 
+    // Get all courses the user is in, along with the average grade and teacher info
     const coursesResult = await db.sql`
         SELECT
             courses.id
@@ -39,6 +41,7 @@ export default defineEventHandler(async (event): Promise<void | Course[]> => {
             user_courses.user_id = ${event.context.auth.user.id}
     `;
 
+    // Error handling
     if (coursesResult.rows == null || coursesResult.error) return sendError(event, new Error(import.meta.dev ? coursesResult.error : "SQL Error"));
 
     return coursesResult.rows as Course[];
