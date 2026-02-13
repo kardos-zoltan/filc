@@ -21,8 +21,16 @@ export default defineNuxtConfig({
           password: ""
         }
       }
+    },
+
+    storage: {
+      default: {
+        driver: "fs-lite",
+        base: "./files"
+      }
     }
   },
+  
   app: {
     head: {
       title: 'Filc',

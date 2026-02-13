@@ -166,6 +166,8 @@ export default defineEventHandler(async (event) => {
 
             if (!result.rows) return new Error(result.error);
 
+            if (result.rows.length === 0) return false;
+            
             return Object.values(result.rows[0])[0] === 1;
         },
 

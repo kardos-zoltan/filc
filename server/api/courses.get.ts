@@ -7,10 +7,10 @@ export default defineEventHandler(async (event): Promise<void | Course[]> => {
     // Get all courses the user is in, along with the average grade and teacher info
     const coursesResult = await db.sql`
         SELECT
-            courses.id
+            courses.id,
             courses.name,
             averages.average,
-            users.id as teacherId
+            users.id as teacherId,
             users.name as teacherName,
         FROM
             user_courses
@@ -42,7 +42,9 @@ export default defineEventHandler(async (event): Promise<void | Course[]> => {
     `;
 
     // Error handling
-    if (coursesResult.rows == null || coursesResult.error) return sendError(event, new Error(import.meta.dev ? coursesResult.error : "SQL Error"));
+    if (coursesResult.rows == null || coursesResult.error) {
+        return sendError(event, new Error(import.meta.dev ? coursesResult.error : "SQL Error"));
+    }   
 
     return coursesResult.rows as Course[];
 })

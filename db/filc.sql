@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Gép: 127.0.0.1
--- Létrehozás ideje: 2026. Feb 02. 12:09
+-- Létrehozás ideje: 2026. Feb 13. 08:30
 -- Kiszolgáló verziója: 10.4.32-MariaDB
 -- PHP verzió: 8.2.12
 
@@ -78,6 +78,7 @@ CREATE TABLE `posts` (
   `id` int(11) NOT NULL,
   `type_id` tinyint(4) NOT NULL,
   `course_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
   `content` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`content`))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 
@@ -218,7 +219,8 @@ ALTER TABLE `grades`
 ALTER TABLE `posts`
   ADD PRIMARY KEY (`id`),
   ADD KEY `course_id` (`course_id`),
-  ADD KEY `type_id` (`type_id`);
+  ADD KEY `type_id` (`type_id`),
+  ADD KEY `user_id` (`user_id`);
 
 --
 -- A tábla indexei `post_types`
@@ -293,7 +295,7 @@ ALTER TABLE `post_types`
 -- AUTO_INCREMENT a táblához `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT a táblához `user_roles`

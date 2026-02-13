@@ -27,10 +27,10 @@ export default defineEventHandler(async (event) => {
         WHERE id = ${params.id}
     `;
 
-    // If the logged in user is not the teacher, return 401
+    // If the logged in user is not the teacher, return 403
     if (teacherId.rows?.at(0)?.id !== event.context.auth.user.id) {
-        setResponseStatus(event, 401, "Unauthorized")
-        return sendError(event, new Error("Unauthorized"));
+        setResponseStatus(event, 403, "Forbidden")
+        return sendError(event, new Error("Forbidden"));
     }
 
     // Update the course with given fields

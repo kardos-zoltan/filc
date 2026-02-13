@@ -11,3 +11,10 @@ type Course = {
     teacherId: number,
     teacherName: string
 }
+
+type Post = {
+    id: number,
+    content: string,
+    type: string,
+    user_id: number
+}
