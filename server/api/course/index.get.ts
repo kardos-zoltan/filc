@@ -1,6 +1,8 @@
 export default defineEventHandler(async (event): Promise<void | Course[]> => {
-    // If not logged in, redirect to home
-    if (event.context.auth.user == null) return sendRedirect(event, "/");
+    // If not logged in, return 401
+    if (event.context.auth.user == null) throw createError({
+        status: 401
+    });
 
     const db = useDatabase();
 
@@ -43,8 +45,11 @@ export default defineEventHandler(async (event): Promise<void | Course[]> => {
 
     // Error handling
     if (coursesResult.rows == null || coursesResult.error) {
-        return sendError(event, new Error(import.meta.dev ? coursesResult.error : "SQL Error"));
-    }   
+        throw createError({
+            status: 500,
+            statusText: (import.meta.dev ? coursesResult.error : "SQL Error")
+        });
+    } 
 
     return coursesResult.rows as Course[];
 })

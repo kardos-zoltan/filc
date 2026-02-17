@@ -2,14 +2,24 @@ import { z } from "zod";
 
 // Define the schema for the request body
 const bodySchema = z.object({
-    course_id: z.int(),
     content: z.string().max(2000),
 });
+
+// Define the schema for the route parameters
+const paramsSchema = z.object({
+    course_id: z.int()
+})
 
 export default defineEventHandler(async (event) => {
     // Parse body, return if error
     const body = await readValidatedBody(event, bodySchema.safeParse);
     if (body.error != null) throw createError({
+        status: 400 
+    });
+    
+    // Parse params, return if error
+    const params = await getValidatedRouterParams(event, paramsSchema.safeParse);
+    if (params.error != null) throw createError({
         status: 400 
     });
 
@@ -24,7 +34,7 @@ export default defineEventHandler(async (event) => {
             SELECT 1 
             FROM user_courses 
             WHERE user_id = ${event.context.auth.user?.id} 
-            AND course_id = ${body.data.course_id} 
+            AND course_id = ${params.data.course_id} 
             LIMIT 1
         `
     ) {
@@ -39,7 +49,7 @@ export default defineEventHandler(async (event) => {
     // Create the post
     const insertResult = await db.sql`
         INSERT INTO posts (type_id, course_id, content)
-        VALUES (1, ${body.data.course_id}, ${body.data.content})
+        VALUES (1, ${params.data.course_id}, ${body.data.content})
     `;
 
     // Error handling

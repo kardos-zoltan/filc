@@ -1,14 +1,14 @@
 import { z } from "zod"
 
 // Define the schema for the request body
-const bodySchema = z.object({
+const paramsSchema = z.object({
     post_id: z.int(),
-})
+});
 
 export default defineEventHandler(async (event) => {
-    // Parse body, return if error
-    const body = await readValidatedBody(event, bodySchema.safeParse);
-    if (body.error != null) throw createError({
+    // Parse params, return if error
+    const params = await getValidatedRouterParams(event, paramsSchema.safeParse);
+    if (params.error != null) throw createError({
         status: 400 
     });
 
@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
         !await event.context.auth.isAuthed`
             SELECT 1 
             FROM posts 
-            WHERE id = ${body.data.post_id} 
+            WHERE id = ${params.data.post_id} 
             AND user_id = ${event.context.auth.user?.id} 
             LIMIT 1
         `
@@ -37,7 +37,7 @@ export default defineEventHandler(async (event) => {
     // Delete post 
     const deleteResult = await db.sql`
         DELETE FROM posts
-        WHERE id = ${body.data.post_id}
+        WHERE id = ${params.data.post_id}
         LIMIT 1
     `;
 

@@ -2,15 +2,22 @@ import { z } from "zod";
 
 // Define the schema for the route parameters
 const paramsSchema = z.object({
-    id: z.int()
+    course_id: z.int()
 });
 
-export default defineEventHandler(async (event): Promise<void | Course> => {
-    // If not logged in, redirect to home
-    if (event.context.auth.user == null) return sendRedirect(event, "/");    
+export default defineEventHandler(async (event): Promise<null | Course> => {
+    // Parse params, return if error
+    const params = await getValidatedRouterParams(event, paramsSchema.safeParse);
+    if (params.error != null) throw createError({
+        status: 400 
+    });
+
+    // If not logged in, return 401
+    if (event.context.auth.user == null) throw createError({
+        status: 401
+    });
     
     const db = useDatabase();
-    const params = await getValidatedRouterParams(event, paramsSchema.parse)
 
     // Select the course with given id, along with the average grade and teacher info
     const coursesResult = await db.sql`
@@ -46,14 +53,19 @@ export default defineEventHandler(async (event): Promise<void | Course> => {
         ON
             courses.teacher_id = users.id
         WHERE
-            courses.id = ${params.id}
+            courses.id = ${params.data.course_id}
         LIMIT 1
     `;
 
     // Error handling
-    if (coursesResult.rows == null || coursesResult.error) return sendError(event, new Error(import.meta.dev ? coursesResult.error : "SQL Error"));
+    if (coursesResult.rows == null || coursesResult.error) {
+        throw createError({
+            status: 500,
+            statusText: (import.meta.dev ? coursesResult.error : "SQL Error")
+        });
+    } 
 
-    if (coursesResult.rows.length == 0) return sendRedirect(event, "/courses");
+    if (coursesResult.rows.length == 0) return null;
 
     return coursesResult.rows[0] as Course;
 });
