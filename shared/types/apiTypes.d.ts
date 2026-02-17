@@ -18,3 +18,10 @@ type Post = {
     type: string,
     user_id: number
 }
+
+type Comment = {
+    id: number,
+    user_id: number,
+    post_id: number
+    content: string
+}
