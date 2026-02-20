@@ -42,4 +42,8 @@ export default defineNuxtConfig({
       ],
     },
   },
+  ssr: false,
+  routeRules: {
+    "/": { ssr: true }
+  }
 })

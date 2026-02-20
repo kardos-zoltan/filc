@@ -1,11 +1,10 @@
 <script setup lang="ts">
-    definePageMeta({
-        middleware: ["forward-auth"]
-    });
-
     useHead({
         title: 'Filc főoldal',
-    })
+    });
+
+    const user = useUserStore();
+    await callOnce(user.fetch);
 </script>
 
 
@@ -17,23 +16,39 @@
             <p class="text-center">E-napló és oktatási rendszer</p>
         </div>
 
-        <div class="row mb-5">
-            <NuxtLink class="link w-auto p-0" to="/login">
-                <button 
-                    class="btn w-auto border btn-secondary text-link-secondary me-2"
-                >
-                    Bejelentkezés
-                </button>
-            </NuxtLink>
+        <ClientOnly>
+            <template v-if="user == null">
+                <div class="row mb-5">
+                    <NuxtLink class="link w-auto p-0" to="/login">
+                        <button 
+                            class="btn w-auto border btn-secondary text-link-secondary me-2"
+                        >
+                            Bejelentkezés
+                        </button>
+                    </NuxtLink>
 
-            <NuxtLink class="link w-auto p-0" to="/register">
-                <button 
-                    class="btn w-auto border btn-primary text-link-primary border"
-                >
-                    Regisztráció
-                </button>
-            </NuxtLink>
-        </div>
+                    <NuxtLink class="link w-auto p-0" to="/register">
+                        <button 
+                            class="btn w-auto border btn-primary text-link-primary border"
+                        >
+                            Regisztráció
+                        </button>
+                    </NuxtLink>
+                </div>
+            </template>
+
+            <template v-else>
+                <div class="row mb-5">
+                    <NuxtLink class="link w-auto p-0" to="/login">
+                        <button 
+                            class="btn w-auto border btn-primary text-link-primary me-2"
+                        >
+                            Belépés
+                        </button>
+                    </NuxtLink>
+                </div>
+            </template>
+        </ClientOnly>
 
         <div class="row mt-5">
             <p class="text-center text-text">
