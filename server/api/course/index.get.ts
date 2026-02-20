@@ -1,4 +1,4 @@
-export default defineEventHandler(async (event): Promise<void | Course[]> => {
+export default defineEventHandler(async (event): Promise<Course[]> => {
     // If not logged in, return 401
     if (event.context.auth.user == null) throw createError({
         status: 401
@@ -13,7 +13,7 @@ export default defineEventHandler(async (event): Promise<void | Course[]> => {
             courses.name,
             averages.average,
             users.id as teacherId,
-            users.name as teacherName,
+            users.name as teacherName
         FROM
             user_courses
         INNER JOIN
