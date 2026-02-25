@@ -5,19 +5,41 @@
 
     const user = useUserStore();
     await callOnce(user.fetch);
+    
+    const explanationItems = ref([
+        { 
+            text: "Gyors, hatékony, és egyszerű.", 
+            path: "" 
+        }, 
+        { 
+            text: "Digitális naplózás és modern oktatásszervezés egy rendszerben.",
+            path: "" 
+        },
+        {
+            text: "Átlátható információk, erősebb együttműködés.",
+            path: ""
+        },
+        {
+            text: "Minden adat egy helyen, mindig kéznél.",
+            path: ""
+        }
+    ])
 </script>
 
 
 <template>
     <div class="container d-flex vh-100 align-items-center justify-content-center flex-column">
+
+        <!-- Title segment  -->
         <div class="row align-items-center justify-content-center">
             <img src="../assets/img/logo.svg" alt="Filc logo" class="logo">
             <h1 class="fw-bold text-center">Filc</h1>
             <p class="text-center">E-napló és oktatási rendszer</p>
         </div>
 
+        <!-- Buttons -->
         <ClientOnly>
-            <template v-if="user == null">
+            <template v-if="user.id == -1">
                 <div class="row mb-5">
                     <NuxtLink class="link w-auto p-0" to="/login">
                         <button 
@@ -50,10 +72,22 @@
             </template>
         </ClientOnly>
 
+        <!-- Explanation segment -->
         <div class="row mt-5">
-            <p class="text-center text-text">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Odit inventore blanditiis amet perspiciatis, deserunt ipsam dolorem reiciendis laborum deleniti, voluptates, ut magnam rerum modi! Animi hic mollitia nostrum repellendus earum!
-            </p>
+            <div v-for="item in explanationItems" class="card mb-3">
+                <div class="row g-0">
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <p class="card-text">
+                                {{item.text}}
+                            </p>
+                        </div> 
+                    </div>
+                    <div class="col-md-4">
+                        <img v-bind:src="item.path" class="img-fluid rounded-start" alt="Image">
+                    </div>
+                </div>
+            </div> 
         </div>
     </div>
 </template>

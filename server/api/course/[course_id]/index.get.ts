@@ -2,7 +2,7 @@ import { z } from "zod";
 
 // Define the schema for the route parameters
 const paramsSchema = z.object({
-    course_id: z.int()
+    course_id: z.coerce.number().int()
 });
 
 export default defineEventHandler(async (event): Promise<null | Course> => {
@@ -19,7 +19,7 @@ export default defineEventHandler(async (event): Promise<null | Course> => {
     
     const db = useDatabase();
 
-    // Select the course with given id, along with the average grade and teacher info
+    // Select the course with given id, along with the average grade, teacher info, and student count
     const coursesResult = await db.sql`
         SELECT
             courses.id
@@ -27,6 +27,11 @@ export default defineEventHandler(async (event): Promise<null | Course> => {
             averages.average,
             users.id as teacherId
             users.name as teacherName,
+            (
+                SELECT COUNT(*)
+                FROM user_courses
+                WHERE user_courses.course_id = courses.id
+            ) as student_count
         FROM
             user_courses
         INNER JOIN

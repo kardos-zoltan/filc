@@ -2,7 +2,7 @@ import { z } from "zod"
 
 // Define the schema for the route parameters 
 const paramsSchema = z.object({
-    course_id: z.int()
+    course_id: z.coerce.number().int()
 })
 
 export default defineEventHandler(async (event) => {
@@ -38,14 +38,20 @@ export default defineEventHandler(async (event) => {
     const postsResult = await db.sql`
         SELECT
             posts.id,
-            posts.content
-            post_types.name as type
+            posts.content,
+            post_types.name as type,
+            users.name as author,
+            posted_at
         FROM
             posts
         INNER JOIN
             post_types
         ON
             posts.type_id = post_types.id
+        INNER JOIN
+            users
+        ON
+            posts.user_id = users.id
         WHERE
             course_id = ${params.data.course_id}
     `;

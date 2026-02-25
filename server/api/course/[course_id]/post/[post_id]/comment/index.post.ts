@@ -7,8 +7,8 @@ const bodySchema = z.object({
 
 // Define the schema for the route parameters
 const paramsSchema = z.object({
-    course_id: z.int(),
-    post_id: z.int()
+    course_id: z.coerce.number().int(),
+    post_id: z.coerce.number().int()
 })
 
 export default defineEventHandler(async (event) => {

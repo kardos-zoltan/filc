@@ -3,8 +3,8 @@ import { z } from "zod"
 
 // Define the schema for the route parameters 
 const paramsSchema = z.object({
-    course_id: z.int(),
-    post_id: z.int()
+    course_id: z.coerce.number().int(),
+    post_id: z.coerce.number().int()
 })
 
 export default defineEventHandler(async (event) => {
@@ -40,11 +40,15 @@ export default defineEventHandler(async (event) => {
     const commentsResult = await db.sql`
         SELECT
             id,
-            user_id,
             post_id,
+            users.name as author
             content
         FROM
             comments
+        INNER JOIN
+            uses
+        ON
+            users.id = user_id
         WHERE
             post_id = ${params.data.post_id}
     `;
@@ -57,5 +61,5 @@ export default defineEventHandler(async (event) => {
         });
     } 
 
-    return commentsResult.rows as Comment[];
+    return commentsResult.rows as Comment2[];
 })

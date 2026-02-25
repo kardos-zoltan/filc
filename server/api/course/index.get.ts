@@ -11,9 +11,10 @@ export default defineEventHandler(async (event): Promise<Course[]> => {
         SELECT
             courses.id,
             courses.name,
-            averages.average,
+            IF(averages.average != null, averages.average, 0) as average,
             users.id as teacherId,
-            users.name as teacherName
+            users.name as teacherName,
+            user_roles.name as role
         FROM
             user_courses
         INNER JOIN
@@ -39,6 +40,10 @@ export default defineEventHandler(async (event): Promise<Course[]> => {
             users
         ON
             courses.teacher_id = users.id
+        INNER JOIN
+            user_roles
+        ON
+            user_courses.role_id = user_roles.id
         WHERE
             user_courses.user_id = ${event.context.auth.user.id}
     `;

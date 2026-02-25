@@ -3,17 +3,23 @@
 @import "bootstrap/scss/mixins";
 
 $body-bg: rgba(255, 248, 225);
-
+$body-color: #292524;
 
 $custom-colors: (
     "primary": #0f172a,
-    "secondary": rgba(#64748b, 0.25),
+    "secondary": rgba(100, 116, 139, 0.25),
     "form": #62748E,
     "link-primary": #FFF8E1,
     "link-secondary": rgb(41 37 36)
 );
 
-
 $theme-colors: map-merge($theme-colors, $custom-colors);
+
+$custom-font-sizes: (
+    7: $font-size-base * 0.9,
+    8: $font-size-base * 0.75
+);
+
+$font-sizes: map-merge($font-sizes, $custom-font-sizes);
 
 @import "bootstrap/scss/bootstrap";

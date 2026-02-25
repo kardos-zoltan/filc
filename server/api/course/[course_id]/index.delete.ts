@@ -2,7 +2,7 @@ import { z } from "zod";
 
 // Define the schema for the route parameters
 const paramsSchema = z.object({
-    course_id: z.int()
+    course_id: z.coerce.number().int()
 });
 
 export default defineEventHandler(async (event) => {

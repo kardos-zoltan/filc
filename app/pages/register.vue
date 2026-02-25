@@ -75,7 +75,6 @@
                         <ErrorMessage name="name" class="fs-7 text-danger"/>
                     </label>
                 </div>
-
                 <!-- Email -->
                 <div class="mb-3">
                     <label class="form-label mb-0 w-100">

@@ -2,7 +2,7 @@ import { z } from "zod"
 
 // Define the schema for the request body
 const paramsSchema = z.object({
-    comment_id: z.int(),
+    comment_id: z.coerce.number().int(),
 });
 
 export default defineEventHandler(async (event) => {

@@ -8,6 +8,8 @@ export const useUserStore = defineStore("user", {
         async fetch() {
             try {
                 const user = await $fetch("/api/auth/user");
+                
+                if (user == null) return;
 
                 this.name = user.name;
                 this.id = user.id;

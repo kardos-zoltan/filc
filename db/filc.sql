@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Feb 17, 2026 at 01:42 PM
+-- Generation Time: Feb 25, 2026 at 01:02 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -92,6 +92,7 @@ CREATE TABLE `posts` (
   `type_id` tinyint(4) NOT NULL,
   `course_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
+  `posted_at` datetime NOT NULL DEFAULT current_timestamp(),
   `content` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`content`))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 
