@@ -41,7 +41,8 @@ export default defineEventHandler(async (event) => {
             posts.content,
             post_types.name as type,
             users.name as author,
-            posted_at
+            posted_at,
+            post_completed.completed_at as completed_at
         FROM
             posts
         INNER JOIN
@@ -52,6 +53,11 @@ export default defineEventHandler(async (event) => {
             users
         ON
             posts.user_id = users.id
+        LEFT JOIN
+            post_completed
+        ON
+            posts.id = post_completed.post_id 
+            AND ${event.context.auth.user.id} = post_completed.user_id
         WHERE
             course_id = ${params.data.course_id}
     `;

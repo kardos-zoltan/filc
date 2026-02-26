@@ -16,15 +16,15 @@ type Post = {
     id: number,
     content: string,
     type: string,
-    user_id: number,
-    posted_at: Date,
+    userId: number,
+    postedAt: Date,
     author: string,
-    completed: null | boolean
+    completedAt: null | Date
 }
 
 type Comment2 = {
     id: number,
-    post_id: number,
+    postId: number,
     author: string
     content: string
 }
