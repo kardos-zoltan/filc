@@ -1,6 +1,6 @@
 import * as crypto from "node:crypto";
 import { Primitive, type Database } from "db0";
-import { type H3Event } from "h3";
+import { Session, type H3Event } from "h3";
 
 type SessionToken = string;
 type HashedPassword = { hash: string, salt: string };
@@ -9,17 +9,64 @@ declare module "h3" {
     // Extend H3EventContext to include auth methods
     interface H3EventContext {
         auth: {
+            /**
+            * Hashes a string with a salt.
+            * @param {string} password The string to be hashed.
+            */
             hashPassword(password: string): HashedPassword,
+
+            /**
+            * Generates a 24 byte base64 session token.
+            * @returns {string}  24 byte base64 session token. 
+            */
             generateSessionToken(): string,
+
+            /**
+            * Generates a session id from a session token.
+            * @param {string} sessionToken session token to be processed.
+            * @returns {string} base64 session id. 
+            */
             generateSessionId(sessionToken: SessionToken): string,
 
+            /**
+             * Creates and stores a user session in the database. 
+             * @param userId User's id.
+             * @returns {Promise<SessionToken>}
+             */
             createSession(userId: number): Promise<SessionToken>,
+            /**
+             * Stores a user session inside browser cookies.
+             * @param sessionToken The session token to be stored.
+             */
             storeSessionInCookies(sessionToken: SessionToken): void,
 
+            /**
+            * Registers a new user.
+            * @param name User's name.
+            * @param email User's email.
+            * @param hash User's password hash.
+            * @returns {string} If email already in use.
+            */
             register(name: string, email: string, hash: HashedPassword): Promise<string | undefined>,
+
+            /**
+            * Authenticates a user.
+            * @param email The user's email.
+            * @param password The user's password.
+            * @returns {number} The user's id.
+            */
             authenticate(email: string, password: string): Promise<number | "User not found" | "Incorrect password">
+
+            /**
+            * Unathenticates a user.
+            * @returns {void}
+            */
             unauthenticate(): void
 
+            /**
+             * Checks if a user is authenticated using the given sql string argument.
+             * @param param must match a template string which would be given to `db.sql`
+             */
             isAuthed(strings: TemplateStringsArray,  ...values: Primitive[]): Promise<boolean | Error>
 
             user: User | null
@@ -31,7 +78,6 @@ const COOKIES = {
     SESSION_TOKEN: "sessionToken"
 };
 
-// Hash a password with a random 16 byte salt
 function hashPassword(password: string, salt: Buffer<ArrayBuffer> = crypto.randomBytes(16)): { hash: string, salt: string }  {    
     const hash = crypto.scryptSync(
         password,
@@ -45,19 +91,23 @@ function hashPassword(password: string, salt: Buffer<ArrayBuffer> = crypto.rando
     }
 }
 
-// Generate a random 24 byte session token
 function generateSessionToken(): string {
     const bytes = crypto.randomBytes(24);
     return bytes.toString("base64");
 }
 
-// Generate a session ID from a session token
 function generateSessionId(sessionToken: string): string {
     const hasher = crypto.createHash("sha256");
     return hasher.update(sessionToken).digest("base64");
 }
 
-// Get the user with a given session token
+/**
+ * Gets user data from database
+ * @param event server event
+ * @param db database
+ * @param sessionToken user's session token
+ * @returns {Promise<User> | Null} Either the user's data, or null if no user found 
+ */
 async function getUser(event: H3Event, db: Database, sessionToken?: string): Promise<User | null> {
     if (sessionToken == null) return null;
 
@@ -168,10 +218,9 @@ export default defineEventHandler(async (event) => {
 
             if (result.rows.length === 0) return false;
             
-            return Object.values(result.rows[0])[0] === 1;
+            return Object.values(result.rows[0] ?? {})[0] === 1;
         },
 
-        // Register a new user
         async register(name, email, hash) {
             const res = await db.sql`
                 INSERT INTO users (name, email, hash, salt)
