@@ -11,7 +11,7 @@
     );
 
     const posts = await useFetch(`/api/course/${route.params.id}/post`);
-    const postsData = computed(() => posts.data.value?.map(x => ({ ...x, posted_at: new Date(x.posted_at)})));
+    const postsData = computed(() => posts.data.value?.map(x => ({ ...x, posted_at: new Date(x.postedAt)})));
 
     function usePromise<T>(promise: Promise<T>): Ref<null | T> {
         const res = ref<any>(null)
@@ -181,12 +181,12 @@
                     >
                         <div class="bg-secondary rounded-4 d-flex justify-content-center align-items-center flex-column">
                             <div class="bg-secondary text-center w-100 rounded-4 rounded-bottom-0 fs-4 py-2">Feladatok</div>
-                            <div v-if="postsData?.filter(x => x.completed != null && !x.completed).length == 0">
+                            <div v-if="postsData?.filter(x => x.completedAt).length == 0">
                                 <p class="my-3">Nincsenek megcsinálandó feladatok!</p>
                             </div>
                             <div
                                 class="p-3 w-100"
-                                v-for="post in postsData?.filter(x => x.completed != null && !x.completed)"
+                                v-for="post in postsData?.filter(x => x.completedAt)"
                             >
                                 <QuizPost :post/>
                             </div>
