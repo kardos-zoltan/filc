@@ -2,32 +2,32 @@ import { z } from "zod";
 
 // Define the schema for the request body
 const bodySchema = z.object({
-    content: z.string().max(2000),
+    content: z.object()
 });
 
 // Define the schema for the route parameters
 const paramsSchema = z.object({
     course_id: z.coerce.number().int()
-})
+});
 
 export default defineEventHandler(async (event) => {
     // Parse body, return if error
     const body = await readValidatedBody(event, bodySchema.safeParse);
     if (body.error != null) throw createError({
-        status: 400 
+        status: 400
     });
-    
+
     // Parse params, return if error
     const params = await getValidatedRouterParams(event, paramsSchema.safeParse);
     if (params.error != null) throw createError({
-        status: 400 
+        status: 400
     });
-
-    // If not logged in, retorn 401
-    if (event.context.auth.user == null) throw createError({
+        
+   // If not logged in, return 401
+   if (event.context.auth.user == null) throw createError({
         status: 401
-    });
-
+   });
+    
     // If user isn't in course, return 403
     if (
         !await event.context.auth.isAuthed`
@@ -48,7 +48,7 @@ export default defineEventHandler(async (event) => {
     // Create the post
     const insertResult = await db.sql`
         INSERT INTO posts (type_id, course_id, user_id, content)
-        VALUES (1, ${params.data.course_id}, ${event.context.auth.user.id}, ${body.data.content})
+        VALUES (2, ${params.data.course_id}, ${event.context.auth.user.id}, ${JSON.stringify(body.data.content)})
     `;
 
     // Error handling
@@ -58,4 +58,5 @@ export default defineEventHandler(async (event) => {
             statusText: (import.meta.dev ? insertResult.error : "SQL Error")
         });
     } 
+    
 })

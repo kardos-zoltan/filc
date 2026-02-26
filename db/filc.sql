@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Gép: 127.0.0.1
--- Létrehozás ideje: 2026. Feb 26. 08:54
+-- Létrehozás ideje: 2026. Feb 26. 11:22
 -- Kiszolgáló verziója: 10.4.32-MariaDB
 -- PHP verzió: 8.2.12
 
@@ -118,6 +118,14 @@ CREATE TABLE `post_types` (
   `id` tinyint(4) NOT NULL,
   `name` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+
+--
+-- A tábla adatainak kiíratása `post_types`
+--
+
+INSERT INTO `post_types` (`id`, `name`) VALUES
+(1, 'text'),
+(2, 'quiz');
 
 -- --------------------------------------------------------
 
@@ -340,7 +348,7 @@ ALTER TABLE `posts`
 -- AUTO_INCREMENT a táblához `post_types`
 --
 ALTER TABLE `post_types`
-  MODIFY `id` tinyint(4) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` tinyint(4) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT a táblához `users`

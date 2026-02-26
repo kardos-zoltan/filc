@@ -2,13 +2,13 @@ import { z } from "zod";
 
 // Define the schema for the request body
 const bodySchema = z.object({
-    content: z.string().max(2000),
+    content: z.object()
 });
 
-// Define the schema for the route parameters
+// Define the schema for route parameters
 const paramsSchema = z.object({
-    course_id: z.coerce.number().int()
-})
+    post_id: z.coerce.number().int(),
+});
 
 export default defineEventHandler(async (event) => {
     // Parse body, return if error
@@ -16,46 +16,47 @@ export default defineEventHandler(async (event) => {
     if (body.error != null) throw createError({
         status: 400 
     });
-    
+
     // Parse params, return if error
     const params = await getValidatedRouterParams(event, paramsSchema.safeParse);
     if (params.error != null) throw createError({
         status: 400 
     });
 
-    // If not logged in, retorn 401
+    // If not logged in, return 401
     if (event.context.auth.user == null) throw createError({
         status: 401
     });
 
-    // If user isn't in course, return 403
+    // If user isn't poster, return 403
     if (
         !await event.context.auth.isAuthed`
             SELECT 1 
-            FROM user_courses 
-            WHERE user_id = ${event.context.auth.user?.id} 
-            AND course_id = ${params.data.course_id} 
+            FROM posts 
+            WHERE id = ${params.data.post_id} 
+            AND user_id = ${event.context.auth.user?.id} 
             LIMIT 1
         `
     ) {
         throw createError({
-            status: 403 
+            status: 403
         });
     }
 
     const db = useDatabase();
 
-    // Create the post
-    const insertResult = await db.sql`
-        INSERT INTO posts (type_id, course_id, user_id, content)
-        VALUES (1, ${params.data.course_id}, ${event.context.auth.user.id}, ${body.data.content})
+    // Update the post
+    const updateResult = await db.sql`
+        UPDATE posts
+        SET content = ${JSON.stringify(body.data.content)}
+        WHERE post_id = ${params.data.post_id}
     `;
 
     // Error handling
-    if (insertResult.rows == null || insertResult.error) {
+    if (updateResult.rows == null || updateResult.error) {
         throw createError({
             status: 500,
-            statusText: (import.meta.dev ? insertResult.error : "SQL Error")
+            statusText: (import.meta.dev ? updateResult.error : "SQL Error")
         });
-    } 
+    };
 })
