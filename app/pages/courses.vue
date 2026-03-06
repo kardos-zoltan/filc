@@ -1,4 +1,6 @@
 <script setup lang="ts">
+    import { FetchError } from "ofetch";
+
     definePageMeta({
         middleware: ["auth"]
     });
@@ -9,9 +11,66 @@
 
     const courses = await useFetch<Course[]>("/api/course");
     const coursesData = courses.data;
+
+    const modal = useTemplateRef("modal");
+
+    const courseCode = ref("");
+    const codeError = ref<string | null>(null);
+
+    async function joinCourse() {
+        try {
+            const res = await $fetch("/api/course/join", {
+                method: "POST",
+                body: { join_code: courseCode.value }
+            });
+
+            await navigateTo(`/course/${res}`);
+        } catch (e: unknown) {
+            const err = e as FetchError;
+        
+            if (err.status === 404) {
+                codeError.value = "A kurzus nem található vagy nem létezik!";
+            }
+        }
+    }
 </script>
 
 <template>
+    <Modal ref="modal">
+        <!-- Erorr message -->
+        <div 
+            class="row w-auto mb-4 bg-danger bg-opacity-50 p-2 rounded-4 col-xl-4 col-lg-6 col-md-8 col-sm-10 col-12 border"
+            v-if="codeError != null" 
+        >
+            <p class="m-0">{{ codeError }}</p>
+        </div>
+
+        <div class="rounded-4 border bg-secondary p-4 d-flex flex-column gap-2">
+            <div class="row justify-content-center">
+                <p class="w-auto fs-3 m-0 text-link-secondary">Kurzusba belépés</p>
+            </div>
+            <div class="row justify-content-center mb-2">
+                <input type="text" class="form-control w-auto" v-model="courseCode">
+            </div>
+
+            <div class="row justify-content-center">
+                <button 
+                    class="btn w-auto border btn-primary text-link-primary me-2"
+                    @click="joinCourse()"
+                >
+                    Belépés
+                </button>
+
+                <button 
+                    class="btn w-auto border btn-secondary text-link-secondary border"
+                    @click="modal?.close()"
+                >
+                    Mégsem
+                </button>
+            </div>
+        </div>
+    </Modal>
+
     <div class="container-fluid">
         <!-- Sidebar -->
         <div 
@@ -68,18 +127,20 @@
         </div> 
         <!-- Add course button -->
         <div class="row mt-3 ms-2 height courses">
-            <div 
+            <button 
                 class="
                     course-name btn btn-secondary border-0 rounded-pill h-auto d-flex 
                     align-items-center justify-content-center opacity-50
-                "    
+                "
+                @click="modal?.open()"
             >
-                <img src="~/assets/img/transparent.svg" alt="transparent" class="image">
-                
-                <p class="text-center m-0 text-black">+</p>
-
-                <img src="~/assets/img/transparent.svg" alt="transparent" class="image">
-            </div>
+                <span 
+                    class="text-center m-0 text-black d-flex align-items-center"
+                    style="height: 40px;"
+                >
+                    <span>+</span>
+                </span>
+            </button>
         </div>
     </div>
 </template>

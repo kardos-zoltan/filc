@@ -1,4 +1,5 @@
 <script setup lang="ts">
+    import { FetchError } from "ofetch";
     import QuizPost from '~/components/QuizPost.vue';
 
     const route = useRoute();
@@ -30,12 +31,69 @@
             })
         ) ?? []
     );
+
+    const modal = useTemplateRef("modal");
+
+    const courseCode = ref("");
+    const codeError = ref<string | null>(null);
+
+    async function joinCourse() {
+        try {
+            const res = await $fetch("/api/course/join", {
+                method: "POST",
+                body: { join_code: courseCode.value }
+            });
+
+            await navigateTo(`/course/${res}`);
+        } catch (e: unknown) {
+            const err = e as FetchError;
+        
+            if (err.status === 404) {
+                codeError.value = "A kurzus nem található vagy nem létezik!";
+            }
+        }
+    }
 </script>
 
 <template>
+    <Modal ref="modal">
+        <!-- Erorr message -->
+        <div 
+            class="row w-auto mb-4 bg-danger bg-opacity-50 p-2 rounded-4 col-xl-4 col-lg-6 col-md-8 col-sm-10 col-12 border"
+            v-if="codeError != null" 
+        >
+            <p class="m-0">{{ codeError }}</p>
+        </div>
+
+        <div class="rounded-4 border bg-secondary p-4 d-flex flex-column gap-2">
+            <div class="row justify-content-center">
+                <p class="w-auto fs-3 m-0 text-link-secondary">Kurzusba belépés</p>
+            </div>
+            <div class="row justify-content-center mb-2">
+                <input type="text" class="form-control w-auto" v-model="courseCode">
+            </div>
+
+            <div class="row justify-content-center">
+                <button 
+                    class="btn w-auto border btn-primary text-link-primary me-2"
+                    @click="joinCourse()"
+                >
+                    Belépés
+                </button>
+
+                <button 
+                    class="btn w-auto border btn-secondary text-link-secondary border"
+                    @click="modal?.close()"
+                >
+                    Mégsem
+                </button>
+            </div>
+        </div>
+    </Modal>
+
     <div class="container-fluid">
         <div class="d-flex">
-            <div class="w-auto me-3">
+            <div class="w-auto">
                 <!-- Sidebar -->
                 <div
                     class="row mt-3 ms-2 courses"
@@ -65,22 +123,27 @@
                 </div>
                 <!-- Add course button -->
                 <div class="row mt-3 ms-2 height courses">
-                    <div 
-                        class="course-name btn btn-secondary border-0 rounded-pill h-auto d-flex align-items-center justify-content-center opacity-50"    
+                    <button 
+                        class="
+                            course-name btn btn-secondary border-0 rounded-pill h-auto d-flex 
+                            align-items-center justify-content-center opacity-50
+                        "
+                        @click="modal?.open()"
                     >
-                        <img src="~/assets/img/transparent.svg" alt="transparent" class="image">
-                        
-                        <p class="text-center m-0 text-black">+</p>
-                        
-                        <img src="~/assets/img/transparent.svg" alt="transparent" class="image">
-                    </div>
+                        <span 
+                            class="text-center m-0 text-black d-flex align-items-center"
+                            style="height: 40px;"
+                        >
+                            <span>+</span>
+                        </span>
+                    </button>
                 </div>
             </div>
             <!-- Main course display -->
-            <div class="container-fluid vh-100 py-3 px-1">
+            <div class="container-fluid vh-100 py-3 px-2">
                 <div
                     class="
-                        bg-danger bg-opacity-25 h-100 rounded-5 border border-5 row overflow-y-auto
+                        bg-danger bg-opacity-25 h-100 rounded-end-5 border border-5 row overflow-y-auto
                         d-flex justify-content-center align-items-center
                     "
                     v-if="courses.error.value"
@@ -89,7 +152,7 @@
                 </div>
 
                 <div
-                    class="bg-secondary h-100 rounded-5 border border-5 row overflow-y-auto"
+                    class="bg-secondary h-100 rounded-end-5 border border-5 row overflow-y-auto"
                     v-else
                 >
                     <!-- Average or student count display -->
