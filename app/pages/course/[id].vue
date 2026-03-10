@@ -122,13 +122,14 @@
                     </NuxtLink>
                 </div>
                 <!-- Add course button -->
-                <div class="row mt-3 ms-2 height courses">
+                <div class="btn-group row mt-3 ms-2 height courses">
                     <button 
                         class="
                             course-name btn btn-secondary border-0 rounded-pill h-auto d-flex 
                             align-items-center justify-content-center opacity-50
                         "
-                        @click="modal?.open()"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
                     >
                         <span 
                             class="text-center m-0 text-black d-flex align-items-center"
@@ -137,6 +138,17 @@
                             <span>+</span>
                         </span>
                     </button>
+
+                    <ul class="dropdown-menu bg-secondary bg-opacity-25 p-0 rounded-5">
+                        <li class="dropdown-item p-1">
+                            <button 
+                                class="btn btn-secondary text-link-secondary bg-opacity-0 px-2 w-100 rounded-pill"
+                                @click="modal?.open()"
+                            >
+                                Kurzusba belépés
+                            </button>
+                        </li>
+                    </ul>
                 </div>
             </div>
             <!-- Main course display -->
@@ -277,7 +289,7 @@
     }
 
     /* Select the last item of courses, if it isn't the first */
-    .courses>:nth-last-child(1):not(:nth-child(1)) {
+    .courses>:nth-last-child(1):not(:nth-child(1)):not(.dropdown-menu) {
         border-top-right-radius: var(--bs-border-radius-pill);
         border-bottom-right-radius: var(--bs-border-radius-pill);
         padding-right: 20px;

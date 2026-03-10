@@ -16,7 +16,7 @@
 </script>
 
 <template>
-    <dialog ref="dialog">
+    <dialog ref="dialog" closedby="any">
         <slot></slot>
     </dialog>
 </template>

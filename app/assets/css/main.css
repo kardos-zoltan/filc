@@ -33,3 +33,8 @@
     text-decoration: none;
     background-color: transparent;
 }
+
+.dropdown-item:hover, .dropdown-item:focus {
+    color: unset !important;
+    background-color: unset !important;
+}
