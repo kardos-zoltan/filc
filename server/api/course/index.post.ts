@@ -21,12 +21,18 @@ export default defineEventHandler(async (event) => {
 
     // Create the course
     await db.sql`
-        INSERT INTO courses (teacher_id, name)
-        VALUES (${event.context.auth.user.id}, ${body.data.name}) 
+        INSERT INTO courses (name)
+        VALUES (${body.data.name})
     `;
 
     // Get the id of the created course
     const { rows } = await db.sql`SELECT last_insert_id() as id`;
+
+    // Add teacher role to user_roles
+    await db.sql`
+        INSERT INTO user_roles (user_id, course_id)
+        VALUES (${event.context.auth.user.id}, ${rows![0]!.id})
+    `
 
     // Return the created course's id
     return rows![0]!.id;

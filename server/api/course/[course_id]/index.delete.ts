@@ -21,9 +21,10 @@ export default defineEventHandler(async (event) => {
 
     // Get the teacher id for the course
     const teacherId = await db.sql`
-        SELECT teacher_id
-        FROM courses
-        WHERE id = ${params.data.course_id}
+        SELECT user_id
+        FROM user_courses
+        WHERE course_id = ${params.data.course_id}
+        AND user_role = 2
     `;
 
     // If the logged in user is not the teacher, return 403

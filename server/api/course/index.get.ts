@@ -11,42 +11,54 @@ export default defineEventHandler(async (event): Promise<Course[]> => {
         SELECT
             courses.id,
             courses.name,
-            IF(averages.average != null, averages.average, 0) as average,
-            users.id as teacherId,
-            users.name as teacherName,
-            user_roles.name as role
+            COALESCE(averages.average, 0) AS average,
+            teacher_uc.user_id AS teacherId,
+            teachers.name AS teacherName,
+            user_roles.name AS role
         FROM
-            user_courses
+            user_courses AS student_uc
+
         INNER JOIN
-            courses
-        ON
-            courses.id = user_courses.course_id
+            courses 
+        ON 
+            courses.id = student_uc.course_id
+
         LEFT JOIN (
             SELECT
-                grades.course_id, 
-                sum(student_grades.grade * grades.weight) / sum(grades.weight) as average
+                grades.course_id,
+                SUM(student_grades.grade * grades.weight) / SUM(grades.weight) AS average
             FROM
                 student_grades
             INNER JOIN
-                grades
-            ON
-                student_grades.grade_id = grades.id
+                grades ON student_grades.grade_id = grades.id
             WHERE
-                student_id = ${event.context.auth.user.id}
-        ) AS averages 
-        ON
+                student_grades.student_id = ${event.context.auth.user.id}
+            GROUP BY
+                grades.course_id
+        ) AS averages
+        ON 
             courses.id = averages.course_id
-        INNER JOIN
-            users
+
+        LEFT JOIN
+            user_courses AS teacher_uc
         ON
-            courses.teacher_id = users.id
+            teacher_uc.course_id = courses.id
+        AND 
+            teacher_uc.role_id = 2
+
+        LEFT JOIN
+            users AS teachers
+        ON
+            teachers.id = teacher_uc.user_id
+
         INNER JOIN
             user_roles
         ON
-            user_courses.role_id = user_roles.id
+            student_uc.role_id = user_roles.id
+
         WHERE
-            user_courses.user_id = ${event.context.auth.user.id}
-    `;
+            student_uc.user_id = ${event.context.auth.user.id}
+        `;
 
     // Error handling
     if (coursesResult.rows == null || coursesResult.error) {
