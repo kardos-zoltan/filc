@@ -30,8 +30,8 @@ export default defineEventHandler(async (event) => {
 
     // Add teacher role to user_roles
     await db.sql`
-        INSERT INTO user_roles (user_id, course_id)
-        VALUES (${event.context.auth.user.id}, ${rows![0]!.id})
+        INSERT INTO user_courses (user_id, course_id, role_id)
+        VALUES (${event.context.auth.user.id}, ${rows![0]!.id}, 2)
     `
 
     // Return the created course's id

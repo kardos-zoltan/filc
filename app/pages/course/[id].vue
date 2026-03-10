@@ -32,7 +32,7 @@
         ) ?? []
     );
 
-    const modal = useTemplateRef("modal");
+    const joinModal = useTemplateRef("joinModal");
 
     const courseCode = ref("");
     const codeError = ref<string | null>(null);
@@ -45,6 +45,32 @@
             });
 
             await navigateTo(`/course/${res}`);
+
+            courses.refresh();
+        } catch (e: unknown) {
+            const err = e as FetchError;
+        
+            if (err.status === 404) {
+                codeError.value = "A kurzus nem található vagy nem létezik!";
+            }
+        }
+    }
+
+    const createModal = useTemplateRef("createModal");
+
+    const courseName = ref("");
+    const createError = ref<string | null>(null);
+
+    async function createCourse() {
+        try {
+            const res = await $fetch("/api/course", {
+                method: "POST",
+                body: { name: courseName.value }
+            });
+
+            await navigateTo(`/course/${res}`);
+
+            courses.refresh();
         } catch (e: unknown) {
             const err = e as FetchError;
         
@@ -56,7 +82,7 @@
 </script>
 
 <template>
-    <Modal ref="modal">
+    <Modal ref="joinModal">
         <!-- Erorr message -->
         <div 
             class="row w-auto mb-4 bg-danger bg-opacity-50 p-2 rounded-4 col-xl-4 col-lg-6 col-md-8 col-sm-10 col-12 border"
@@ -70,7 +96,10 @@
                 <p class="w-auto fs-3 m-0 text-link-secondary">Kurzusba belépés</p>
             </div>
             <div class="row justify-content-center mb-2">
-                <input type="text" class="form-control w-auto" v-model="courseCode">
+                <label>
+                    Kurzus kódja
+                    <input type="text" class="form-control" maxlength="8" v-model="courseCode">
+                </label>
             </div>
 
             <div class="row justify-content-center">
@@ -83,7 +112,45 @@
 
                 <button 
                     class="btn w-auto border btn-secondary text-link-secondary border"
-                    @click="modal?.close()"
+                    @click="joinModal?.close()"
+                >
+                    Mégsem
+                </button>
+            </div>
+        </div>
+    </Modal>
+
+    <Modal ref="createModal">
+        <!-- Erorr message -->
+        <div 
+            class="row w-auto mb-4 bg-danger bg-opacity-50 p-2 rounded-4 col-xl-4 col-lg-6 col-md-8 col-sm-10 col-12 border"
+            v-if="createError != null" 
+        >
+            <p class="m-0">{{ createError }}</p>
+        </div>
+
+        <div class="rounded-4 border bg-secondary p-4 d-flex flex-column gap-2">
+            <div class="row justify-content-center">
+                <p class="w-auto fs-3 m-0 text-link-secondary">El creador con kurzus</p>
+            </div>
+            <div class="row justify-content-center mb-2">
+                <label>
+                    Kurzus neve
+                    <input type="text" class="form-control" maxlength="255" v-model="courseName">
+                </label>
+            </div>
+
+            <div class="row justify-content-center">
+                <button 
+                    class="btn w-auto border btn-primary text-link-primary me-2"
+                    @click="createCourse()"
+                >
+                    Létrehoz
+                </button>
+
+                <button 
+                    class="btn w-auto border btn-secondary text-link-secondary border"
+                    @click="createModal?.close()"
                 >
                     Mégsem
                 </button>
@@ -139,13 +206,21 @@
                         </span>
                     </button>
 
-                    <ul class="dropdown-menu bg-secondary bg-opacity-25 p-0 rounded-5">
-                        <li class="dropdown-item p-1">
+                    <ul class="dropdown-menu bg-secondary bg-opacity-25 p-0 mt-1 rounded-4">
+                        <li class="dropdown-item p-1 pb-0">
                             <button 
-                                class="btn btn-secondary text-link-secondary bg-opacity-0 px-2 w-100 rounded-pill"
-                                @click="modal?.open()"
+                                class="btn btn-secondary text-link-secondary bg-opacity-0 px-2 w-100 rounded-4 rounded-bottom-0"
+                                @click="joinModal?.open()"
                             >
                                 Kurzusba belépés
+                            </button>
+                        </li>
+                        <li class="dropdown-item p-1">
+                            <button 
+                                class="btn btn-secondary text-link-secondary bg-opacity-0 px-2 w-100 rounded-4 rounded-top-0"
+                                @click="createModal?.open()"
+                            >
+                                Kurzus létrehozása
                             </button>
                         </li>
                     </ul>
