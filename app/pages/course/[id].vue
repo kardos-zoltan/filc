@@ -36,6 +36,7 @@
     );
 
     const joinModal = useTemplateRef("joinModal");
+    const leaveModal = useTemplateRef("leaveModal");
 
     const courseCode = ref("");
     const codeError = ref<string | null>(null);
@@ -93,6 +94,29 @@
 
             window.location.reload();
         } catch {}
+    }
+    
+    async function leaveCourse() {
+        try {
+            await $fetch(`/api/course/${route.params.id}/leave`, {
+                method: "GET"
+            });
+            await navigateTo(`/courses/`)
+        } catch (e: unknown) {
+            codeError.value = "Hiba a kilépés során, próbálja újra!"
+        }
+
+    }
+
+    async function deleteCourse() {
+        try {
+            await $fetch(`/api/course/${route.params.id}/`, {
+                method: "DELETE"
+            });
+            await navigateTo(`/courses/`)
+        } catch (e: unknown) {
+            codeError.value = "Hiba a törlés során, próbálja újra!"
+        }
     }
 </script>
 
@@ -166,6 +190,53 @@
                 <button 
                     class="btn w-auto border btn-secondary text-link-secondary border"
                     @click="createModal?.close()"
+                >
+                    Mégsem
+                </button>
+            </div>
+        </div>
+    </Modal>
+
+    <Modal ref="leaveModal">
+        <!-- Erorr message -->
+        <div 
+            class="row w-auto mb-4 bg-danger bg-opacity-50 p-2 rounded-4 col-xl-4 col-lg-6 col-md-8 col-sm-10 col-12 border"
+            v-if="codeError != null" 
+        >
+            <p class="m-0">{{ codeError }}</p>
+        </div>
+
+        <div class="rounded-4 border bg-secondary p-4 d-flex flex-column gap-2">
+            <div class="row justify-content-center">
+                <p class="w-auto fs-3 m-0 text-link-secondary"
+                   v-if="currentCourse?.role == 'student'">
+                    Biztos, hogy ki akar lépni abből a kurzusból?
+                </p>
+                <p class="w-auto fs-3 m-0 text-link-secondary"
+                   v-if="currentCourse?.role == 'teacher'">
+                    Biztos, hogy ki akarja törölni a kurzust?
+                </p>
+            </div>
+
+            <div class="row justify-content-center">
+                <button 
+                    class="btn bg-danger bg-opacity-50 w-auto border btn-secondary text-link-secondary me-2"
+                    @click="leaveCourse()"
+                    v-if="currentCourse?.role == 'student'"
+                >
+                    Kilépés
+                </button>
+                <button 
+                    class="btn bg-danger bg-opacity-50 w-auto border btn-secondary text-link-secondary me-2"
+                    @click="deleteCourse()"
+                    v-if="currentCourse?.role == 'teacher'"
+                >
+                    Törlés
+                </button>
+
+                <button 
+                    class="btn w-auto border btn-secondary text-link-secondary border"
+                    @click="leaveModal?.close()"
                 >
                     Mégsem
                 </button>
@@ -291,11 +362,11 @@
                     class="bg-secondary h-100 rounded-end-5 border border-5 row overflow-y-auto"
                     v-else
                 >
-                    <!-- Average or student count display -->
                     <div 
                         class="p-3"
                         style="max-width: 160px;"
                     >
+                        <!-- Average or student count display -->
                         <!-- Display average if student-->
                         <div 
                             class="bg-secondary rounded-4 border d-flex justify-content-center align-items-center flex-column py-2"
@@ -320,7 +391,28 @@
                             </div>
                             <NuxtLink class="mt-2 text-center lh-sm">Tanulók megtekintése</NuxtLink>
                         </div>
+                        
+                        <hr>
+
+                        <!-- Leave button if student-->
+                        <button 
+                            class="btn bg-danger bg-opacity-50 rounded-3 p-3 py-2 border w-100"
+                            v-if="currentCourse?.role === 'student'"
+                            @click="leaveModal?.open()"
+                        >
+                            Kilépés
+                        </button>
+
+                        <!-- Delete button if teacher-->
+                        <button 
+                            class="btn bg-danger bg-opacity-50 rounded-3 px-1 py-2 border w-100"
+                            v-if="currentCourse?.role === 'teacher'"
+                            @click="leaveModal?.open()"
+                        >
+                            Kurzus törlése 
+                        </button>
                     </div>
+
 
                     <!-- Posts -->
                     <div class="col p-3">

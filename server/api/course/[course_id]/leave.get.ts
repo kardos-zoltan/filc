@@ -6,7 +6,7 @@ const paramsSchema = z.object({
 });
 
 export default defineEventHandler(async (event) => {
-    // Parse params, return if error
+    // Parse params, if error return 400
     const params = await getValidatedRouterParams(event, paramsSchema.safeParse);
     if (params.error != null) throw createError({
         status: 400 
@@ -19,19 +19,23 @@ export default defineEventHandler(async (event) => {
 
     const db = useDatabase();
 
-    // Get the teacher id for the course
-    const teacherId = await db.sql`
-        SELECT user_id
+    // Check if user in course 
+    const userCourse = await db.sql`
+        SELECT 1
         FROM user_courses
         WHERE course_id = ${params.data.course_id}
-        AND role_id = 2
+        AND user_id = ${event.context.auth.user.id}
     `;
 
-    // If the logged in user is not the teacher, return 403
-    if (teacherId.rows?.at(0)?.user_id !== event.context.auth.user.id) throw createError({
+    // If not, 403
+    if (userCourse.rows?.length === 0) throw createError({
         status: 403
-    });
+    })
 
-    // Delete the course
-    await db.sql`DELETE FROM courses WHERE id = ${params.data.course_id}`;
-});
+    //Otherwise, remove user from course
+    await db.sql`
+        DELETE FROM user_courses
+        WHERE course_id = ${params.data.course_id}
+        AND user_id = ${event.context.auth.user.id}
+    `
+})
