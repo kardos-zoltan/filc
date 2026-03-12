@@ -4,6 +4,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ["@vee-validate/nuxt", "@pinia/nuxt"],
   css: [
+    "@fortawesome/fontawesome-free/css/all.min.css",
     "~/assets/css/bootstrap-custom.scss",
     "~/assets/css/main.css"
   ],
