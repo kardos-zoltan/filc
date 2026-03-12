@@ -9,19 +9,19 @@
     const explanationItems = ref([
         { 
             text: "Gyors, hatékony, és egyszerű.", 
-            path: "" 
+            path: "/images/explanation_0.png" 
         }, 
         { 
             text: "Digitális naplózás és modern oktatásszervezés egy rendszerben.",
-            path: "" 
+            path: "/images/explanation_1.png" 
         },
         {
             text: "Átlátható információk, erősebb együttműködés.",
-            path: ""
+            path: "/images/explanation_2.png"
         },
         {
             text: "Minden adat egy helyen, mindig kéznél.",
-            path: ""
+            path: "/images/explanation_3.png"
         }
     ])
 </script>
