@@ -9,7 +9,8 @@ type Course = {
     role: string
     average: number | null,
     teacherId: number,
-    teacherName: string
+    teacherName: string,
+    studentCount: number
 }
 
 type Post = {

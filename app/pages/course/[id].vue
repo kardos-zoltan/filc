@@ -267,7 +267,7 @@
                         >
                             <p class="fs-3 mb-0 text-center">Tanulók</p>
                             <div class="bg-white average d-flex align-items-center justify-content-center rounded-circle fs-5">
-                                <!-- <div>{{ currentCourse?.studentCount }}</div> -->
+                                <div>{{ currentCourse?.studentCount ?? 0 }}</div>
                             </div>
                             <NuxtLink class="mt-2 text-center lh-sm">Tanulók megtekintése</NuxtLink>
                         </div>
