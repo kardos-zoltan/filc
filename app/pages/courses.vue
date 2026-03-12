@@ -9,6 +9,9 @@
         title: 'Kurzusok',
     });
 
+    const user = useUserStore();
+    await callOnce(user.fetch);
+
     const courses = await useFetch<Course[]>("/api/course");
     const coursesData = courses.data;
 
@@ -54,6 +57,18 @@
                 codeError.value = "A kurzus nem található vagy nem létezik!";
             }
         }
+    }
+
+    async function logout() {
+        try {
+            await $fetch("/api/auth/logout");
+
+            await navigateTo("/", {
+                replace: true
+            });
+
+            window.location.reload();
+        } catch {}
     }
 </script>
 
@@ -135,6 +150,41 @@
     </Modal>
 
     <div class="container-fluid">
+        <!-- user -->
+        <div class="row mt-3 ms-2 courses dropend">
+            <button 
+                class="
+                    course-name btn btn-primary text-link-primary border-0 rounded-3 h-auto d-flex 
+                    align-items-center justify-content-start p-2 dropdown-toggle
+                "
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+            >
+                <div class="me-2">
+                    <img 
+                        src="~/assets/img/logo.svg" 
+                        alt="" 
+                        class="img-thumbnail" 
+                        style="height: 30px; width: 30px;"
+                    >
+                </div>
+                <div class="d-flex flex-column text-start overflow-hidden me-auto">
+                    <span class="m-0 text-nowrap text-truncate text-link-primary">{{ user.name }}</span>
+                </div>
+            </button>
+
+            <ul class="dropdown-menu bg-dropdown p-0 ms-1 rounded-4 w-auto">
+                <li class="dropdown-item p-1">
+                    <button 
+                        class="btn btn-secondary w-100 rounded-4"
+                        @click="logout()"
+                    >
+                        <span class="text-danger">Kilépés</span>
+                    </button>
+                </li>
+            </ul>
+        </div>
+
         <!-- Sidebar -->
         <div 
             class="row mt-3 ms-2 height courses"
@@ -206,7 +256,7 @@
                 </span>
             </button>
 
-            <ul class="dropdown-menu bg-secondary bg-opacity-25 p-0 mt-1 rounded-4">
+            <ul class="dropdown-menu bg-dropdown p-0 mt-1 rounded-4">
                 <li class="dropdown-item p-1 pb-0">
                     <button 
                         class="btn btn-secondary text-link-secondary bg-opacity-0 px-2 w-100 rounded-4 rounded-bottom-0"

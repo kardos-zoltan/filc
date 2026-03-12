@@ -38,3 +38,7 @@
     color: unset !important;
     background-color: unset !important;
 }
+
+.bg-dropdown {
+    background-color: #d8d7cc;
+}
