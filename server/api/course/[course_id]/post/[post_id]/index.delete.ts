@@ -42,7 +42,7 @@ export default defineEventHandler(async (event) => {
     `;
 
     // Error handling
-    if (deleteResult.rows == null || deleteResult.error) {
+    if (deleteResult.error) {
         throw createError({
             status: 500,
             statusText: (import.meta.dev ? deleteResult.error : "SQL Error")

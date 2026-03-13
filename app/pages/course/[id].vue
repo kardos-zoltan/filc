@@ -15,13 +15,90 @@
     );
 
     const posts = await useFetch(`/api/course/${route.params.id}/post`);
-    const postsData = computed(() => posts.data.value?.map(x => ({ ...x, posted_at: new Date(x.postedAt)})));
+    const postsData = computed(() => posts.data.value?.map(x => ({ ...x, posted_at: new Date(x.posted_at)})));
+    const postContent = ref("");
 
     function usePromise<T>(promise: Promise<T>): Ref<null | T> {
         const res = ref<any>(null)
         promise.then(x => res.value = x);
 
         return res;
+    };
+
+    async function sendPost() {
+        try {
+            await $fetch(`/api/course/${route.params.id}/post/text`, {
+                method: "POST",
+                body: {content: postContent.value}
+            })
+
+            posts.refresh();
+            postContent.value = "";
+        } catch (e: unknown) {
+            codeError.value = "Hiba a posztolás során!";
+        }
+    };
+
+
+    const postId = ref(0);
+    const editContent= ref("");
+    const editModal = useTemplateRef("editModal")
+    
+    async function openEditModal(id: number, content: string) {
+        postId.value = id;
+        editContent.value = JSON.parse(content);
+        editModal.value?.open();
+    }
+    
+    async function cancelEdit() {
+        postId.value = 0;
+        editContent.value = "";
+        editModal.value?.close();
+    }
+
+    async function editPost(post_id: number, post_content: string) {
+        if (post_content == "") {
+            editModal.value?.close();
+            openDeleteModal(post_id);
+        } else {
+            try {
+                await $fetch(`/api/course/${route.params.id}/post/${post_id}/text`, {
+                    method: "PATCH",
+                    body: {content: post_content}
+                });
+                postId.value = 0;
+                editContent.value = "";
+                editModal.value?.close();
+                posts.refresh();
+            } catch (e: unknown) {
+                codeError.value = "Hiba a módosítás során!";
+            }
+        }
+    }
+
+    const deleteModal = useTemplateRef("deleteModal");
+
+    async function openDeleteModal(id: number) {
+        postId.value = id;
+        deleteModal.value?.open();
+    }
+
+    async function cancelDelete() {
+        postId.value = 0;
+        deleteModal.value?.close();
+    }
+
+    async function deletePost(post_id: number) {
+        try {
+            await $fetch(`/api/course/${route.params.id}/post/${post_id}`, {
+                method: "DELETE"
+            });
+            postId.value = 0;
+            deleteModal.value?.close();
+            posts.refresh();
+        } catch (e: unknown) {
+            codeError.value = "Hiba a törlés során!";
+        }
     }
 
     const comments = computed(
@@ -118,6 +195,7 @@
             codeError.value = "Hiba a törlés során, próbálja újra!"
         }
     }
+
 </script>
 
 <template>
@@ -237,6 +315,76 @@
                 <button 
                     class="btn w-auto border btn-secondary text-link-secondary border"
                     @click="leaveModal?.close()"
+                >
+                    Mégsem
+                </button>
+            </div>
+        </div>
+    </Modal>
+    
+    <Modal ref="deleteModal">
+        <!-- Erorr message -->
+        <div 
+            class="row w-auto mb-4 bg-danger bg-opacity-50 p-2 rounded-4 col-xl-4 col-lg-6 col-md-8 col-sm-10 col-12 border"
+            v-if="codeError != null" 
+        >
+            <p class="m-0">{{ codeError }}</p>
+        </div>
+
+        <div class="rounded-4 border bg-secondary p-4 d-flex flex-column gap-2">
+            <div class="row justify-content-center">
+                <p class="w-auto fs-3 m-0 text-link-secondary">
+                    Biztos, hogy ki akarja törölni ezt a posztot?
+                </p>
+            </div>
+
+            <div class="row justify-content-center">
+                <button 
+                    class="btn bg-danger bg-opacity-50 w-auto border btn-secondary text-link-secondary me-2"
+                    @click="deletePost(postId)"
+                >
+                    Törlés
+                </button>
+
+                <button 
+                    class="btn w-auto border btn-secondary text-link-secondary border"
+                    @click="cancelDelete()"
+                >
+                    Mégsem
+                </button>
+            </div>
+        </div>
+    </Modal>
+    
+    <Modal ref="editModal">
+        <!-- Erorr message -->
+        <div 
+            class="row w-auto mb-4 bg-danger bg-opacity-50 p-2 rounded-4 col-xl-4 col-lg-6 col-md-8 col-sm-10 col-12 border"
+            v-if="codeError != null" 
+        >
+            <p class="m-0">{{ codeError }}</p>
+        </div>
+
+        <div class="rounded-4 border bg-secondary p-4 d-flex flex-column gap-2">
+            <div class="row justify-content-center">
+                <p class="w-auto fs-3 m-0 text-link-secondary">Poszt módosítása</p>
+            </div>
+            <div class="row justify-content-center mb-2">
+
+                <textarea class="form-control textarea" v-model="editContent" autofocus></textarea>
+            </div>
+
+            <div class="row justify-content-center">
+                <button 
+                    class="btn w-auto border btn-primary text-link-primary me-2"
+                    @click="editPost(postId, editContent)" 
+                >
+                    Módosítás
+                </button>
+
+                <button 
+                    class="btn w-auto border btn-secondary text-link-secondary border"
+                    @click="cancelEdit()"
                 >
                     Mégsem
                 </button>
@@ -421,12 +569,15 @@
                             <textarea 
                                 class="form-control bg-transparent rounded-4 rounded-bottom-0 flex-grow-1 text-link-primary border-0 textarea p-3" 
                                 placeholder="Írj ide..."
+                                v-model="postContent"
                             />
                             <div class="border-top border-white mx-2 py-2 d-flex">
                                 <button class="btn btn-transparent text-link-primary rounded-3">+</button>
-                                <button class="btn btn-transparent text-link-primary rounded-3 ms-auto">Küldés</button>
+                                <button class="btn btn-transparent text-link-primary rounded-3 ms-auto"
+                                        @click="sendPost()">Küldés</button>
                             </div>
                         </div>
+
                         <!-- Display posts -->
                         <div
                             class="bg-secondary rounded-4 mt-4"
@@ -436,18 +587,31 @@
                                 <img src="~/assets/img/logo.svg" alt="" class="img-thumbnail profile-image me-2">
                                 {{ post.author }}
                                 <div class="ms-auto me-1">{{ Intl.DateTimeFormat(undefined, { year: "numeric", month: "numeric", day: "numeric", hour: "numeric", minute: "numeric" }).format(post.posted_at) }}</div>
+                                <div class="px-1">
+                                    <i class="fa-solid fa-pen-to-square me-1"
+                                       v-if="post.userId == user.id"
+                                       @click="openEditModal(post.id, post.content)"
+                                       role="button"></i>
+                                    <i class="fa-solid fa-trash"
+                                       v-if="post.userId == user.id ||
+                                             currentCourse?.role == 'teacher'"
+                                       @click="openDeleteModal(post.id)"
+                                       role="button"></i>
+                                </div>
                             </div>
                             <div class="p-3">
                                 <!-- Display text post -->
                                 <div v-if="post.type === 'text'">
-                                    {{ post.content }}
+                                    <p class="m-0" v-for="line in JSON.parse(post.content).split('\n')">
+                                        {{ line }}
+                                    </p>
                                     <hr class="my-2">
                         
                                     <div
                                         class="bg-secondary p-2 mb-1 rounded-3"
                                         v-for="comment in comments.find(x => x.post_id === post.id)?.data.value"
                                     >
-                                        <span class="bgsecondary p-1 px-2 rounded-3 me-1">
+                                        <span class="bg-secondary p-1 px-2 rounded-3 me-1">
                                             {{ comment.author }}
                                         </span>
                         
@@ -456,7 +620,7 @@
                                     <a class="text-primary opacity-25">Komment hozzáadása</a>
                                 </div>
 
-                                <!- - Display quiz post - ->
+                                <!-- Display quiz post -->
                                 <div class="" v-if="post.type === 'quiz'">
                                     <QuizPost :post />
                                 </div>

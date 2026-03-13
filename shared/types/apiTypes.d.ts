@@ -18,7 +18,7 @@ type Post = {
     content: string,
     type: string,
     userId: number,
-    postedAt: Date,
+    posted_at: string,
     author: string,
     completedAt: null | Date
 }

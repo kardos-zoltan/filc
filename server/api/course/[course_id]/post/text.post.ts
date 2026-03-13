@@ -48,11 +48,11 @@ export default defineEventHandler(async (event) => {
     // Create the post
     const insertResult = await db.sql`
         INSERT INTO posts (type_id, course_id, user_id, content)
-        VALUES (1, ${params.data.course_id}, ${event.context.auth.user.id}, ${body.data.content})
+        VALUES (1, ${params.data.course_id}, ${event.context.auth.user.id}, ${JSON.stringify(body.data.content)})
     `;
 
     // Error handling
-    if (insertResult.rows == null || insertResult.error) {
+    if (insertResult.error) {
         throw createError({
             status: 500,
             statusText: (import.meta.dev ? insertResult.error : "SQL Error")

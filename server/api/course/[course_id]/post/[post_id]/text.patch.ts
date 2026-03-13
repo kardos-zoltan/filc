@@ -14,7 +14,8 @@ export default defineEventHandler(async (event) => {
     // Parse body, return if error
     const body = await readValidatedBody(event, bodySchema.safeParse);
     if (body.error != null) throw createError({
-        status: 400 
+        status: 400,
+        statusMessage: body.error?.message
     });
 
     // Parse params, return if error
@@ -48,12 +49,12 @@ export default defineEventHandler(async (event) => {
     // Update the post
     const updateResult = await db.sql`
         UPDATE posts
-        SET content = ${body.data.content}
-        WHERE post_id = ${params.data.post_id}
+        SET content = ${JSON.stringify(body.data.content)}
+        WHERE id = ${params.data.post_id}
     `;
 
     // Error handling
-    if (updateResult.rows == null || updateResult.error) {
+    if (updateResult.error) {
         throw createError({
             status: 500,
             statusText: (import.meta.dev ? updateResult.error : "SQL Error")

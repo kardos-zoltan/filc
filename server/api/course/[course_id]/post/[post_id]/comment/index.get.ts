@@ -39,14 +39,14 @@ export default defineEventHandler(async (event) => {
     // SELECT comment data
     const commentsResult = await db.sql`
         SELECT
-            id,
+            comments.id,
             post_id,
-            users.name as author
+            users.name as author,
             content
         FROM
             comments
         INNER JOIN
-            uses
+            users
         ON
             users.id = user_id
         WHERE

@@ -42,7 +42,8 @@ export default defineEventHandler(async (event) => {
             post_types.name as type,
             users.name as author,
             posted_at,
-            post_completed.completed_at as completed_at
+            post_completed.completed_at as completed_at,
+            posts.user_id as userId
         FROM
             posts
         INNER JOIN
