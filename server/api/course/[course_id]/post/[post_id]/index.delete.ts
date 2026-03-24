@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
     // Parse params, return if error
     const params = await getValidatedRouterParams(event, paramsSchema.safeParse);
     if (params.error != null) throw createError({
-        status: 400 
+        status: 400,
     });
 
     // If not logged in, return 401

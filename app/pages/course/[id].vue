@@ -1,6 +1,9 @@
 <script setup lang="ts">
     import { FetchError } from "ofetch";
     import QuizPost from '~/components/QuizPost.vue';
+    import ConfirmModal from '~/components/ConfirmModal.vue';
+    import InputModal from "~/components/InputModal.vue";
+import { create } from "domain";
 
     const route = useRoute();
 
@@ -41,34 +44,21 @@
 
 
     const postId = ref(0);
-    const editContent= ref("");
-    const editModal = useTemplateRef("editModal")
     
-    async function openEditModal(id: number, content: string) {
-        postId.value = id;
-        editContent.value = JSON.parse(content);
-        editModal.value?.open();
-    }
-    
-    async function cancelEdit() {
-        postId.value = 0;
-        editContent.value = "";
-        editModal.value?.close();
-    }
-
-    async function editPost(post_id: number, post_content: string) {
-        if (post_content == "") {
-            editModal.value?.close();
-            openDeleteModal(post_id);
+    async function editPost() {
+        if (inputValue.value == "") {
+            // evil id transfering method
+            let idTransfer = postId.value;
+            resetInputModal();
+            postId.value = idTransfer;
+            setupDeleteModal(postId.value);
         } else {
             try {
-                await $fetch(`/api/course/${route.params.id}/post/${post_id}/text`, {
+                await $fetch(`/api/course/${route.params.id}/post/${postId.value}/text`, {
                     method: "PATCH",
-                    body: {content: post_content}
+                    body: {content: inputValue.value}
                 });
-                postId.value = 0;
-                editContent.value = "";
-                editModal.value?.close();
+                resetInputModal();
                 posts.refresh();
             } catch (e: unknown) {
                 codeError.value = "Hiba a módosítás során!";
@@ -76,25 +66,13 @@
         }
     }
 
-    const deleteModal = useTemplateRef("deleteModal");
 
-    async function openDeleteModal(id: number) {
-        postId.value = id;
-        deleteModal.value?.open();
-    }
-
-    async function cancelDelete() {
-        postId.value = 0;
-        deleteModal.value?.close();
-    }
-
-    async function deletePost(post_id: number) {
+    async function deletePost() {
         try {
-            await $fetch(`/api/course/${route.params.id}/post/${post_id}`, {
+            await $fetch(`/api/course/${route.params.id}/post/${postId.value}`, {
                 method: "DELETE"
             });
-            postId.value = 0;
-            deleteModal.value?.close();
+            resetConfirmModal();
             posts.refresh();
         } catch (e: unknown) {
             codeError.value = "Hiba a törlés során!";
@@ -111,9 +89,6 @@
             })
         ) ?? []
     );
-
-    const joinModal = useTemplateRef("joinModal");
-    const leaveModal = useTemplateRef("leaveModal");
 
     const courseCode = ref("");
     const codeError = ref<string | null>(null);
@@ -137,16 +112,11 @@
         }
     }
 
-    const createModal = useTemplateRef("createModal");
-
-    const courseName = ref("");
-    const createError = ref<string | null>(null);
-
     async function createCourse() {
         try {
             const res = await $fetch("/api/course", {
                 method: "POST",
-                body: { name: courseName.value }
+                body: { name: inputValue.value }
             });
 
             await navigateTo(`/course/${res}`);
@@ -196,202 +166,111 @@
         }
     }
 
+    async function editComment() {
+        return;
+    }
+
+    const question = ref("");
+    const confirmText = ref("");
+    const confirmFunction = ref();
+
+    const confirmModal = ref<InstanceType<typeof ConfirmModal> | null>(null);
+
+    const inputLabel = ref("");
+    const inputValue = ref("");
+
+    const inputModal = ref<InstanceType<typeof InputModal> | null>(null);
+
+    async function resetConfirmModal() {
+        codeError.value = null;
+        question.value = "";
+        confirmText.value = "";
+        confirmFunction.value = null;
+        postId.value = 0;
+
+        confirmModal.value?.close();
+    }
+
+    async function resetInputModal() {
+        codeError.value = null;
+        question.value = "";
+        confirmText.value = "";
+        confirmFunction.value = null;
+        postId.value = 0;
+        inputLabel.value = "";
+        inputValue.value = "";
+
+        inputModal.value?.close();
+    }
+
+        
+    async function setupDeleteModal(id: number) {
+        question.value = "Biztos, hogy ki akarja törölni ezt a posztot?";
+        confirmText.value = "Törlés";
+        confirmFunction.value = deletePost;
+        postId.value = id;
+
+        confirmModal.value?.open();
+    }
+
+    async function setupLeaveOrDeleteModal(role: string) {
+        let isTeacher = role == "teacher";
+
+        question.value = isTeacher ? "Biztos, hogy ki akarja törölni ezt a kurzust?" : "Biztos, hogy ki akar lépni ebből a kurzusból?";
+        confirmText.value = isTeacher ? "Törlés" : "Kilépés";       
+        confirmFunction.value = isTeacher ? deleteCourse : leaveCourse;
+
+        confirmModal.value?.open();
+    }
+
+    async function setupJoinModal() {
+        question.value = "Belépés kurzusba";
+        confirmText.value = "Belépés";
+        confirmFunction.value = joinCourse;
+        inputLabel.value = "Kurzus belépési kód:"
+
+        inputModal.value?.open();
+    }
+
+    async function setupCreateModal() {
+        question.value = "Kurzus létrehozása";
+        confirmText.value = "Létrehozás";
+        confirmFunction.value = createCourse;
+        inputLabel.value = "Kurzus neve:";
+
+        inputModal.value?.open();
+    }
+
+    async function setupEditModal(id : number, content: string, type: string | null = "Poszt") {
+        question.value = type + " módosítása";
+        confirmText.value = "Módosítás";
+        confirmFunction.value = type == "Poszt" ? editPost : editComment;
+        inputLabel.value = "";
+        inputValue.value = JSON.parse(content); 
+        postId.value = id;
+
+        inputModal.value?.open();
+    }
 </script>
 
 <template>
-    <Modal ref="joinModal">
-        <!-- Erorr message -->
-        <div 
-            class="row w-auto mb-4 bg-danger bg-opacity-50 p-2 rounded-4 col-xl-4 col-lg-6 col-md-8 col-sm-10 col-12 border"
-            v-if="codeError != null" 
-        >
-            <p class="m-0">{{ codeError }}</p>
-        </div>
 
-        <div class="rounded-4 border bg-secondary p-4 d-flex flex-column gap-2">
-            <div class="row justify-content-center">
-                <p class="w-auto fs-3 m-0 text-link-secondary">Kurzusba belépés</p>
-            </div>
-            <div class="row justify-content-center mb-2">
-                <label>
-                    Kurzus kódja
-                    <input type="text" class="form-control" maxlength="8" v-model="courseCode">
-                </label>
-            </div>
+    <ConfirmModal ref="confirmModal"
+                 :error="codeError"
+                 :question="question"
+                 :confirm-text="confirmText"
+                 :confirm-function="confirmFunction ?? deletePost"
+                 :cancel-function="resetConfirmModal"></ConfirmModal>
 
-            <div class="row justify-content-center">
-                <button 
-                    class="btn w-auto border btn-primary text-link-primary me-2"
-                    @click="joinCourse()"
-                >
-                    Belépés
-                </button>
-
-                <button 
-                    class="btn w-auto border btn-secondary text-link-secondary border"
-                    @click="joinModal?.close()"
-                >
-                    Mégsem
-                </button>
-            </div>
-        </div>
-    </Modal>
-
-    <Modal ref="createModal">
-        <!-- Erorr message -->
-        <div 
-            class="row w-auto mb-4 bg-danger bg-opacity-50 p-2 rounded-4 col-xl-4 col-lg-6 col-md-8 col-sm-10 col-12 border"
-            v-if="createError != null" 
-        >
-            <p class="m-0">{{ createError }}</p>
-        </div>
-
-        <div class="rounded-4 border bg-secondary p-4 d-flex flex-column gap-2">
-            <div class="row justify-content-center">
-                <p class="w-auto fs-3 m-0 text-link-secondary">El creador con kurzus</p>
-            </div>
-            <div class="row justify-content-center mb-2">
-                <label>
-                    Kurzus neve
-                    <input type="text" class="form-control" maxlength="255" v-model="courseName">
-                </label>
-            </div>
-
-            <div class="row justify-content-center">
-                <button 
-                    class="btn w-auto border btn-primary text-link-primary me-2"
-                    @click="createCourse()"
-                >
-                    Létrehoz
-                </button>
-
-                <button 
-                    class="btn w-auto border btn-secondary text-link-secondary border"
-                    @click="createModal?.close()"
-                >
-                    Mégsem
-                </button>
-            </div>
-        </div>
-    </Modal>
-
-    <Modal ref="leaveModal">
-        <!-- Erorr message -->
-        <div 
-            class="row w-auto mb-4 bg-danger bg-opacity-50 p-2 rounded-4 col-xl-4 col-lg-6 col-md-8 col-sm-10 col-12 border"
-            v-if="codeError != null" 
-        >
-            <p class="m-0">{{ codeError }}</p>
-        </div>
-
-        <div class="rounded-4 border bg-secondary p-4 d-flex flex-column gap-2">
-            <div class="row justify-content-center">
-                <p class="w-auto fs-3 m-0 text-link-secondary"
-                   v-if="currentCourse?.role == 'student'">
-                    Biztos, hogy ki akar lépni abből a kurzusból?
-                </p>
-                <p class="w-auto fs-3 m-0 text-link-secondary"
-                   v-if="currentCourse?.role == 'teacher'">
-                    Biztos, hogy ki akarja törölni a kurzust?
-                </p>
-            </div>
-
-            <div class="row justify-content-center">
-                <button 
-                    class="btn bg-danger bg-opacity-50 w-auto border btn-secondary text-link-secondary me-2"
-                    @click="leaveCourse()"
-                    v-if="currentCourse?.role == 'student'"
-                >
-                    Kilépés
-                </button>
-                <button 
-                    class="btn bg-danger bg-opacity-50 w-auto border btn-secondary text-link-secondary me-2"
-                    @click="deleteCourse()"
-                    v-if="currentCourse?.role == 'teacher'"
-                >
-                    Törlés
-                </button>
-
-                <button 
-                    class="btn w-auto border btn-secondary text-link-secondary border"
-                    @click="leaveModal?.close()"
-                >
-                    Mégsem
-                </button>
-            </div>
-        </div>
-    </Modal>
+    <InputModal ref="inputModal"
+                v-model="inputValue"
+                :error="codeError"
+                :question="question"
+                :confirm-text="confirmText"
+                :confirm-function="confirmFunction ?? joinCourse"
+                :cancel-function="resetInputModal"
+                :label="inputLabel"></InputModal>
     
-    <Modal ref="deleteModal">
-        <!-- Erorr message -->
-        <div 
-            class="row w-auto mb-4 bg-danger bg-opacity-50 p-2 rounded-4 col-xl-4 col-lg-6 col-md-8 col-sm-10 col-12 border"
-            v-if="codeError != null" 
-        >
-            <p class="m-0">{{ codeError }}</p>
-        </div>
-
-        <div class="rounded-4 border bg-secondary p-4 d-flex flex-column gap-2">
-            <div class="row justify-content-center">
-                <p class="w-auto fs-3 m-0 text-link-secondary">
-                    Biztos, hogy ki akarja törölni ezt a posztot?
-                </p>
-            </div>
-
-            <div class="row justify-content-center">
-                <button 
-                    class="btn bg-danger bg-opacity-50 w-auto border btn-secondary text-link-secondary me-2"
-                    @click="deletePost(postId)"
-                >
-                    Törlés
-                </button>
-
-                <button 
-                    class="btn w-auto border btn-secondary text-link-secondary border"
-                    @click="cancelDelete()"
-                >
-                    Mégsem
-                </button>
-            </div>
-        </div>
-    </Modal>
-    
-    <Modal ref="editModal">
-        <!-- Erorr message -->
-        <div 
-            class="row w-auto mb-4 bg-danger bg-opacity-50 p-2 rounded-4 col-xl-4 col-lg-6 col-md-8 col-sm-10 col-12 border"
-            v-if="codeError != null" 
-        >
-            <p class="m-0">{{ codeError }}</p>
-        </div>
-
-        <div class="rounded-4 border bg-secondary p-4 d-flex flex-column gap-2">
-            <div class="row justify-content-center">
-                <p class="w-auto fs-3 m-0 text-link-secondary">Poszt módosítása</p>
-            </div>
-            <div class="row justify-content-center mb-2">
-
-                <textarea class="form-control textarea" v-model="editContent" autofocus></textarea>
-            </div>
-
-            <div class="row justify-content-center">
-                <button 
-                    class="btn w-auto border btn-primary text-link-primary me-2"
-                    @click="editPost(postId, editContent)" 
-                >
-                    Módosítás
-                </button>
-
-                <button 
-                    class="btn w-auto border btn-secondary text-link-secondary border"
-                    @click="cancelEdit()"
-                >
-                    Mégsem
-                </button>
-            </div>
-        </div>
-    </Modal>
-
     <div class="container-fluid">
         <div class="d-flex">
             <div class="w-auto">
@@ -478,7 +357,7 @@
                         <li class="dropdown-item p-1 pb-0">
                             <button 
                                 class="btn btn-secondary text-link-secondary bg-opacity-0 px-2 w-100 rounded-4 rounded-bottom-0"
-                                @click="joinModal?.open()"
+                                @click="setupJoinModal()"
                             >
                                 Kurzusba belépés
                             </button>
@@ -486,7 +365,7 @@
                         <li class="dropdown-item p-1">
                             <button 
                                 class="btn btn-secondary text-link-secondary bg-opacity-0 px-2 w-100 rounded-4 rounded-top-0"
-                                @click="createModal?.open()"
+                                @click="setupCreateModal()"
                             >
                                 Kurzus létrehozása
                             </button>
@@ -542,23 +421,14 @@
                         
                         <hr>
 
-                        <!-- Leave button if student-->
+                        <!-- Leave or delete button -->
                         <button 
                             class="btn bg-danger bg-opacity-50 rounded-3 p-3 py-2 border w-100"
-                            v-if="currentCourse?.role === 'student'"
-                            @click="leaveModal?.open()"
+                            @click="setupLeaveOrDeleteModal(currentCourse?.role ?? 'student')"
                         >
-                            Kilépés
+                            {{ currentCourse?.role == 'teacher' ? 'Kurzus törlése' : 'Kilépés'}}
                         </button>
 
-                        <!-- Delete button if teacher-->
-                        <button 
-                            class="btn bg-danger bg-opacity-50 rounded-3 px-1 py-2 border w-100"
-                            v-if="currentCourse?.role === 'teacher'"
-                            @click="leaveModal?.open()"
-                        >
-                            Kurzus törlése 
-                        </button>
                     </div>
 
 
@@ -590,12 +460,12 @@
                                 <div class="px-1">
                                     <i class="fa-solid fa-pen-to-square me-1"
                                        v-if="post.userId == user.id"
-                                       @click="openEditModal(post.id, post.content)"
+                                       @click="setupEditModal(post.id, post.content, 'Poszt')"
                                        role="button"></i>
                                     <i class="fa-solid fa-trash"
                                        v-if="post.userId == user.id ||
                                              currentCourse?.role == 'teacher'"
-                                       @click="openDeleteModal(post.id)"
+                                       @click="setupDeleteModal(post.id)"
                                        role="button"></i>
                                 </div>
                             </div>
