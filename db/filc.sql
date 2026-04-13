@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Gép: 127.0.0.1
--- Létrehozás ideje: 2026. Már 10. 12:03
--- Kiszolgáló verziója: 10.4.32-MariaDB
--- PHP verzió: 8.2.12
+-- Host: localhost
+-- Generation Time: Mar 26, 2026 at 10:36 AM
+-- Server version: 10.4.28-MariaDB
+-- PHP Version: 8.2.4
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,13 +18,13 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Adatbázis: `filc`
+-- Database: `filc`
 --
 
 -- --------------------------------------------------------
 
 --
--- Tábla szerkezet ehhez a táblához `comments`
+-- Table structure for table `comments`
 --
 
 CREATE TABLE `comments` (
@@ -34,10 +34,19 @@ CREATE TABLE `comments` (
   `content` varchar(2000) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 
+--
+-- Dumping data for table `comments`
+--
+
+INSERT INTO `comments` (`id`, `user_id`, `post_id`, `content`) VALUES
+(1, 7, 14, 'asd'),
+(2, 7, 14, 'komment!'),
+(3, 7, 14, 'a');
+
 -- --------------------------------------------------------
 
 --
--- Tábla szerkezet ehhez a táblához `courses`
+-- Table structure for table `courses`
 --
 
 CREATE TABLE `courses` (
@@ -46,7 +55,7 @@ CREATE TABLE `courses` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 
 --
--- A tábla adatainak kiíratása `courses`
+-- Dumping data for table `courses`
 --
 
 INSERT INTO `courses` (`id`, `name`) VALUES
@@ -54,12 +63,15 @@ INSERT INTO `courses` (`id`, `name`) VALUES
 (2, 'Physics 101'),
 (3, 'History 101'),
 (4, 'Furulya 4'),
-(5, 'Computer Science 101');
+(5, 'Computer Science 101'),
+(8, 'krzus'),
+(10, 'asd'),
+(12, 'aha aha aha');
 
 -- --------------------------------------------------------
 
 --
--- Tábla szerkezet ehhez a táblához `grades`
+-- Table structure for table `grades`
 --
 
 CREATE TABLE `grades` (
@@ -70,7 +82,7 @@ CREATE TABLE `grades` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 
 --
--- A tábla adatainak kiíratása `grades`
+-- Dumping data for table `grades`
 --
 
 INSERT INTO `grades` (`id`, `course_id`, `weight`, `name`) VALUES
@@ -83,7 +95,7 @@ INSERT INTO `grades` (`id`, `course_id`, `weight`, `name`) VALUES
 -- --------------------------------------------------------
 
 --
--- Tábla szerkezet ehhez a táblához `join_codes`
+-- Table structure for table `join_codes`
 --
 
 CREATE TABLE `join_codes` (
@@ -92,17 +104,17 @@ CREATE TABLE `join_codes` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 
 --
--- A tábla adatainak kiíratása `join_codes`
+-- Dumping data for table `join_codes`
 --
 
 INSERT INTO `join_codes` (`course_id`, `code`) VALUES
-(1, 'aaaaaaaa'),
+(8, 'aaaaaaaa'),
 (2, 'bbbbbbbb');
 
 -- --------------------------------------------------------
 
 --
--- Tábla szerkezet ehhez a táblához `posts`
+-- Table structure for table `posts`
 --
 
 CREATE TABLE `posts` (
@@ -114,10 +126,17 @@ CREATE TABLE `posts` (
   `content` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`content`))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 
+--
+-- Dumping data for table `posts`
+--
+
+INSERT INTO `posts` (`id`, `type_id`, `course_id`, `user_id`, `posted_at`, `content`) VALUES
+(14, 1, 12, 7, '2026-03-25 05:16:39', '\"asdkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk\\n\\n\\nNamsfdglkfdmlkdmhlkgfmnh\\n\\n\\nfghjéfglhkélghfjkpél\"');
+
 -- --------------------------------------------------------
 
 --
--- Tábla szerkezet ehhez a táblához `post_completed`
+-- Table structure for table `post_completed`
 --
 
 CREATE TABLE `post_completed` (
@@ -129,7 +148,7 @@ CREATE TABLE `post_completed` (
 -- --------------------------------------------------------
 
 --
--- Tábla szerkezet ehhez a táblához `post_types`
+-- Table structure for table `post_types`
 --
 
 CREATE TABLE `post_types` (
@@ -138,7 +157,7 @@ CREATE TABLE `post_types` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 
 --
--- A tábla adatainak kiíratása `post_types`
+-- Dumping data for table `post_types`
 --
 
 INSERT INTO `post_types` (`id`, `name`) VALUES
@@ -148,7 +167,7 @@ INSERT INTO `post_types` (`id`, `name`) VALUES
 -- --------------------------------------------------------
 
 --
--- Tábla szerkezet ehhez a táblához `sessions`
+-- Table structure for table `sessions`
 --
 
 CREATE TABLE `sessions` (
@@ -158,7 +177,7 @@ CREATE TABLE `sessions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 
 --
--- A tábla adatainak kiíratása `sessions`
+-- Dumping data for table `sessions`
 --
 
 INSERT INTO `sessions` (`id`, `user_id`, `expires_at`) VALUES
@@ -166,6 +185,7 @@ INSERT INTO `sessions` (`id`, `user_id`, `expires_at`) VALUES
 ('2/73v++KDcYdC8F8+WwndajYgIQjwhQaU/JZ20z2WDg=', 7, '2026-04-09 10:58:07'),
 ('2WfQxvMgNEpfC9oFJnjXuAEAJDU89+y+7uejbGTMpMU=', 7, '2026-04-09 10:58:07'),
 ('BPsSVbMhr6hQ4cM4ml/TRsfoWsVrT9vLbESERkp13KY=', 7, '2026-04-09 10:58:12'),
+('gJ1XiDLlc7x/Uw2DR7gmenHW2HFPUIi49JiqDgW9h9Y=', 7, '2026-04-19 16:25:32'),
 ('oNs7gDJ9m3vguQePLU5NPPMnnSUx0W13AyiBBwI8bnU=', 7, '2026-04-09 10:58:12'),
 ('OSwgkAeXqWyyehtP87R7SdsqcAuVcrKP7gn5Au2f558=', 7, '2026-04-09 10:58:00'),
 ('qvzHhovnoGtXwxvWvdkmVKzVYPkScXpl6ap9HPh8dHM=', 7, '2026-04-09 10:58:11'),
@@ -177,7 +197,7 @@ INSERT INTO `sessions` (`id`, `user_id`, `expires_at`) VALUES
 -- --------------------------------------------------------
 
 --
--- Tábla szerkezet ehhez a táblához `student_grades`
+-- Table structure for table `student_grades`
 --
 
 CREATE TABLE `student_grades` (
@@ -187,7 +207,7 @@ CREATE TABLE `student_grades` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 
 --
--- A tábla adatainak kiíratása `student_grades`
+-- Dumping data for table `student_grades`
 --
 
 INSERT INTO `student_grades` (`student_id`, `grade_id`, `grade`) VALUES
@@ -200,7 +220,7 @@ INSERT INTO `student_grades` (`student_id`, `grade_id`, `grade`) VALUES
 -- --------------------------------------------------------
 
 --
--- Tábla szerkezet ehhez a táblához `users`
+-- Table structure for table `users`
 --
 
 CREATE TABLE `users` (
@@ -212,7 +232,7 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 
 --
--- A tábla adatainak kiíratása `users`
+-- Dumping data for table `users`
 --
 
 INSERT INTO `users` (`id`, `name`, `email`, `hash`, `salt`) VALUES
@@ -222,12 +242,13 @@ INSERT INTO `users` (`id`, `name`, `email`, `hash`, `salt`) VALUES
 (4, 'Dave Student', 'dave@student.com', 'hash4', 'salt4'),
 (5, 'Eve Teacher', 'eve@school.com', 'hash5', 'salt5'),
 (6, 'Név Neves', 'neves@nev.com', 'lJiIobcBnYeDF2Mmgylgd4/cxksGeeP/eNvHc8y+F7X53amH+IIZ4ZrZNJWE6K/El8ScVb6l+IdQIOePgMoDO1RtmHhfhmCJL/w8DfVN3+rs5imCNNwAygVsh/XiBrL1VvZANv47WhsfGn3TjzPJ3/4X7TIdBqipiQF+0SiDzYE=', 'J48nI18EYZEc0pH7UoVZTA=='),
-(7, 'asd', 'aha@aha.aha', '/IlXy+iM1trI4TLS3MCf86ffQSGMkzWxAYBvKENUpDMeaCd8Ck1thtFRKAnKwcfxba1n0/uBZMEhq5Z8K1SsTeN36+IWBJ4uf+HQQ7BDpVnsHsOfklDcJB0h2VakhDgf13FtLzVnka9K2EM9UGLcOxMLPuc0fQ5wiPfGUHIIpFI=', '7MwVvNlglgWUb+OsZ0Wpiw==');
+(7, 'asd', 'aha@aha.aha', '/IlXy+iM1trI4TLS3MCf86ffQSGMkzWxAYBvKENUpDMeaCd8Ck1thtFRKAnKwcfxba1n0/uBZMEhq5Z8K1SsTeN36+IWBJ4uf+HQQ7BDpVnsHsOfklDcJB0h2VakhDgf13FtLzVnka9K2EM9UGLcOxMLPuc0fQ5wiPfGUHIIpFI=', '7MwVvNlglgWUb+OsZ0Wpiw=='),
+(8, 'asd', 'asd2@asd.com', 'CNSJ+q33M/EFDUVucY+x2joSs3Uh3au128owG/+uScgKnhvKg9QNIueL9VQumooLYRlmtyykgX4WipnovGD1s5UY4udciEQp7FV1Tgh1Dcc9HxhX96Ie+VGwC8fuEmi5L/RPtijfRopM8X1wWQq/MaK6KfGL7v1r7Tsj0KAhR88=', 'UqosOIuQwOmPQyBKPQ/3+Q==');
 
 -- --------------------------------------------------------
 
 --
--- Tábla szerkezet ehhez a táblához `user_courses`
+-- Table structure for table `user_courses`
 --
 
 CREATE TABLE `user_courses` (
@@ -237,23 +258,24 @@ CREATE TABLE `user_courses` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 
 --
--- A tábla adatainak kiíratása `user_courses`
+-- Dumping data for table `user_courses`
 --
 
 INSERT INTO `user_courses` (`user_id`, `course_id`, `role_id`) VALUES
 (2, 1, 1),
 (3, 1, 1),
 (4, 2, 1),
-(7, 1, 1),
-(7, 2, 1),
 (1, 1, 2),
 (5, 2, 2),
-(5, 3, 2);
+(5, 3, 2),
+(7, 8, 2),
+(7, 10, 2),
+(7, 12, 2);
 
 -- --------------------------------------------------------
 
 --
--- Tábla szerkezet ehhez a táblához `user_roles`
+-- Table structure for table `user_roles`
 --
 
 CREATE TABLE `user_roles` (
@@ -262,7 +284,7 @@ CREATE TABLE `user_roles` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 
 --
--- A tábla adatainak kiíratása `user_roles`
+-- Dumping data for table `user_roles`
 --
 
 INSERT INTO `user_roles` (`id`, `name`) VALUES
@@ -270,11 +292,11 @@ INSERT INTO `user_roles` (`id`, `name`) VALUES
 (2, 'teacher');
 
 --
--- Indexek a kiírt táblákhoz
+-- Indexes for dumped tables
 --
 
 --
--- A tábla indexei `comments`
+-- Indexes for table `comments`
 --
 ALTER TABLE `comments`
   ADD PRIMARY KEY (`id`),
@@ -282,27 +304,27 @@ ALTER TABLE `comments`
   ADD KEY `post_id` (`post_id`);
 
 --
--- A tábla indexei `courses`
+-- Indexes for table `courses`
 --
 ALTER TABLE `courses`
   ADD PRIMARY KEY (`id`);
 
 --
--- A tábla indexei `grades`
+-- Indexes for table `grades`
 --
 ALTER TABLE `grades`
   ADD PRIMARY KEY (`id`),
   ADD KEY `course_id` (`course_id`);
 
 --
--- A tábla indexei `join_codes`
+-- Indexes for table `join_codes`
 --
 ALTER TABLE `join_codes`
   ADD PRIMARY KEY (`course_id`),
   ADD UNIQUE KEY `code` (`code`);
 
 --
--- A tábla indexei `posts`
+-- Indexes for table `posts`
 --
 ALTER TABLE `posts`
   ADD PRIMARY KEY (`id`),
@@ -311,41 +333,41 @@ ALTER TABLE `posts`
   ADD KEY `user_id` (`user_id`);
 
 --
--- A tábla indexei `post_completed`
+-- Indexes for table `post_completed`
 --
 ALTER TABLE `post_completed`
   ADD KEY `post_id` (`post_id`),
   ADD KEY `user_id` (`user_id`);
 
 --
--- A tábla indexei `post_types`
+-- Indexes for table `post_types`
 --
 ALTER TABLE `post_types`
   ADD PRIMARY KEY (`id`);
 
 --
--- A tábla indexei `sessions`
+-- Indexes for table `sessions`
 --
 ALTER TABLE `sessions`
   ADD PRIMARY KEY (`id`),
   ADD KEY `user_id` (`user_id`);
 
 --
--- A tábla indexei `student_grades`
+-- Indexes for table `student_grades`
 --
 ALTER TABLE `student_grades`
   ADD KEY `student_id` (`student_id`),
   ADD KEY `grade_id` (`grade_id`);
 
 --
--- A tábla indexei `users`
+-- Indexes for table `users`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `email` (`email`);
 
 --
--- A tábla indexei `user_courses`
+-- Indexes for table `user_courses`
 --
 ALTER TABLE `user_courses`
   ADD PRIMARY KEY (`user_id`,`course_id`),
@@ -354,83 +376,89 @@ ALTER TABLE `user_courses`
   ADD KEY `course_id` (`course_id`);
 
 --
--- A tábla indexei `user_roles`
+-- Indexes for table `user_roles`
 --
 ALTER TABLE `user_roles`
   ADD PRIMARY KEY (`id`);
 
 --
--- A kiírt táblák AUTO_INCREMENT értéke
+-- AUTO_INCREMENT for dumped tables
 --
 
 --
--- AUTO_INCREMENT a táblához `courses`
+-- AUTO_INCREMENT for table `comments`
+--
+ALTER TABLE `comments`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `courses`
 --
 ALTER TABLE `courses`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
--- AUTO_INCREMENT a táblához `grades`
+-- AUTO_INCREMENT for table `grades`
 --
 ALTER TABLE `grades`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
--- AUTO_INCREMENT a táblához `posts`
+-- AUTO_INCREMENT for table `posts`
 --
 ALTER TABLE `posts`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
--- AUTO_INCREMENT a táblához `post_types`
+-- AUTO_INCREMENT for table `post_types`
 --
 ALTER TABLE `post_types`
   MODIFY `id` tinyint(4) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
--- AUTO_INCREMENT a táblához `users`
+-- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
--- AUTO_INCREMENT a táblához `user_roles`
+-- AUTO_INCREMENT for table `user_roles`
 --
 ALTER TABLE `user_roles`
   MODIFY `id` tinyint(4) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
--- Megkötések a kiírt táblákhoz
+-- Constraints for dumped tables
 --
 
 --
--- Megkötések a táblához `grades`
+-- Constraints for table `grades`
 --
 ALTER TABLE `grades`
   ADD CONSTRAINT `grades_ibfk_1` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`) ON DELETE CASCADE;
 
 --
--- Megkötések a táblához `posts`
+-- Constraints for table `posts`
 --
 ALTER TABLE `posts`
   ADD CONSTRAINT `posts_ibfk_1` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `posts_ibfk_2` FOREIGN KEY (`type_id`) REFERENCES `post_types` (`id`) ON DELETE CASCADE;
 
 --
--- Megkötések a táblához `sessions`
+-- Constraints for table `sessions`
 --
 ALTER TABLE `sessions`
   ADD CONSTRAINT `sessions_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
--- Megkötések a táblához `student_grades`
+-- Constraints for table `student_grades`
 --
 ALTER TABLE `student_grades`
   ADD CONSTRAINT `student_grades_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `student_grades_ibfk_2` FOREIGN KEY (`grade_id`) REFERENCES `grades` (`id`) ON DELETE CASCADE;
 
 --
--- Megkötések a táblához `user_courses`
+-- Constraints for table `user_courses`
 --
 ALTER TABLE `user_courses`
   ADD CONSTRAINT `user_courses_ibfk_1` FOREIGN KEY (`role_id`) REFERENCES `user_roles` (`id`) ON DELETE CASCADE,

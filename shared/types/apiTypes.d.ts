@@ -26,6 +26,7 @@ type Post = {
 type Comment2 = {
     id: number,
     postId: number,
-    author: string
-    content: string
+    author: string,
+    content: string,
+    userId: number
 }

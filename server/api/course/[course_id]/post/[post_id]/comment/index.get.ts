@@ -42,7 +42,8 @@ export default defineEventHandler(async (event) => {
             comments.id,
             post_id,
             users.name as author,
-            content
+            content,
+            comments.user_id as userId
         FROM
             comments
         INNER JOIN

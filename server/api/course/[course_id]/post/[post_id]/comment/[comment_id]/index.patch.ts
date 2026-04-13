@@ -49,11 +49,11 @@ export default defineEventHandler(async (event) => {
     const updateResult = await db.sql`
         UPDATE comments
         SET content = ${body.data.content}
-        WHERE comment_id = ${params.data.comment_id}
+        WHERE id = ${params.data.comment_id}
     `;
 
     // Error handling
-    if (updateResult.rows == null || updateResult.error) {
+    if (updateResult.error) {
         throw createError({
             status: 500,
             statusText: (import.meta.dev ? updateResult.error : "SQL Error")

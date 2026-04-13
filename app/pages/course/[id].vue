@@ -3,7 +3,6 @@
     import QuizPost from '~/components/QuizPost.vue';
     import ConfirmModal from '~/components/ConfirmModal.vue';
     import InputModal from "~/components/InputModal.vue";
-import { create } from "domain";
 
     const route = useRoute();
 
@@ -43,18 +42,16 @@ import { create } from "domain";
     };
 
 
-    const postId = ref(0);
+    const selectedId = ref(0);
+    const selectedComment = ref(0);
     
     async function editPost() {
         if (inputValue.value == "") {
-            // evil id transfering method
-            let idTransfer = postId.value;
-            resetInputModal();
-            postId.value = idTransfer;
-            setupDeleteModal(postId.value);
+            resetInputModal(false);
+            setupDeleteModal(selectedId.value);
         } else {
             try {
-                await $fetch(`/api/course/${route.params.id}/post/${postId.value}/text`, {
+                await $fetch(`/api/course/${route.params.id}/post/${selectedId.value}/text`, {
                     method: "PATCH",
                     body: {content: inputValue.value}
                 });
@@ -69,7 +66,7 @@ import { create } from "domain";
 
     async function deletePost() {
         try {
-            await $fetch(`/api/course/${route.params.id}/post/${postId.value}`, {
+            await $fetch(`/api/course/${route.params.id}/post/${selectedId.value}`, {
                 method: "DELETE"
             });
             resetConfirmModal();
@@ -89,6 +86,35 @@ import { create } from "domain";
             })
         ) ?? []
     );
+
+    const isAddingComment = ref(false);
+    const commentInput = ref("");
+
+    async function toggleAddingComment() {
+        if (isAddingComment.value) {
+            isAddingComment.value = false;
+        } else {
+            isAddingComment.value = true;
+        }
+
+        commentInput.value = "";
+    }
+
+    async function submitComment(postId: number) {
+        try{
+            await $fetch(`/api/course/${route.params.id}/post/${postId}/comment`, {
+                method: "POST",
+                body: {content: commentInput.value}
+            });
+            toggleAddingComment();
+            posts.refresh();
+        } catch(e : unknown) {
+            const err = e as FetchError;
+        
+            codeError.value = err.message;
+            alert(codeError.value)
+        }
+    }
 
     const courseCode = ref("");
     const codeError = ref<string | null>(null);
@@ -166,8 +192,36 @@ import { create } from "domain";
         }
     }
 
+
     async function editComment() {
-        return;
+        if (inputValue.value == "") {
+            resetInputModal(false);
+            setupDeleteModal(selectedId.value,selectedComment.value, "Komment");
+        } else {
+            try {
+                await $fetch(`/api/course/${route.params.id}/post/${selectedId.value}/comment/${selectedComment.value}`, {
+                    method: "PATCH",
+                    body: {content: inputValue.value}
+                });
+                resetInputModal();
+                posts.refresh();
+            } catch (e: unknown) {
+                codeError.value = "Hiba a módosítás során!";
+            }
+        }
+    }
+
+    async function deleteComment() {
+        console.log("deleting ", selectedComment.value, " on course: ", route.params.id, " on post: ", selectedId.value)
+        try {
+            await $fetch(`/api/course/${route.params.id}/post/${selectedId.value}/comment/${selectedComment.value}`, {
+                method: "DELETE"
+            });
+            resetConfirmModal();
+            posts.refresh();
+        } catch (e: unknown) {
+            codeError.value = "Hiba a törlés során!";
+        }
     }
 
     const question = ref("");
@@ -186,29 +240,34 @@ import { create } from "domain";
         question.value = "";
         confirmText.value = "";
         confirmFunction.value = null;
-        postId.value = 0;
+        selectedId.value = 0;
 
         confirmModal.value?.close();
     }
 
-    async function resetInputModal() {
+    async function resetInputModal(resetSelectedIds : boolean = true) {
         codeError.value = null;
         question.value = "";
         confirmText.value = "";
         confirmFunction.value = null;
-        postId.value = 0;
         inputLabel.value = "";
         inputValue.value = "";
+
+        if (resetSelectedIds) {
+            selectedId.value = 0;
+            selectedComment.value = 0;
+        }
 
         inputModal.value?.close();
     }
 
         
-    async function setupDeleteModal(id: number) {
-        question.value = "Biztos, hogy ki akarja törölni ezt a posztot?";
+    async function setupDeleteModal(id: number, commentId: number | null = null, type: string | null = "Poszt") {
+        question.value = type + " törlése";
         confirmText.value = "Törlés";
-        confirmFunction.value = deletePost;
-        postId.value = id;
+        confirmFunction.value = type == "Poszt" ? deletePost : deleteComment;
+        selectedComment.value = commentId ?? 0;
+        selectedId.value = id;
 
         confirmModal.value?.open();
     }
@@ -241,13 +300,14 @@ import { create } from "domain";
         inputModal.value?.open();
     }
 
-    async function setupEditModal(id : number, content: string, type: string | null = "Poszt") {
+    async function setupEditModal(id : number, commentId: number | null = null, content: string, type: string | null = "Poszt") {
         question.value = type + " módosítása";
         confirmText.value = "Módosítás";
         confirmFunction.value = type == "Poszt" ? editPost : editComment;
         inputLabel.value = "";
-        inputValue.value = JSON.parse(content); 
-        postId.value = id;
+        inputValue.value = type == "Poszt" ? JSON.parse(content) : content; 
+        selectedId.value = id;
+        selectedComment.value = commentId ?? 0;
 
         inputModal.value?.open();
     }
@@ -460,12 +520,12 @@ import { create } from "domain";
                                 <div class="px-1">
                                     <i class="fa-solid fa-pen-to-square me-1"
                                        v-if="post.userId == user.id"
-                                       @click="setupEditModal(post.id, post.content, 'Poszt')"
+                                       @click="setupEditModal(post.id, null, post.content, 'Poszt')"
                                        role="button"></i>
                                     <i class="fa-solid fa-trash"
                                        v-if="post.userId == user.id ||
                                              currentCourse?.role == 'teacher'"
-                                       @click="setupDeleteModal(post.id)"
+                                       @click="setupDeleteModal(post.id, null, 'Poszt')"
                                        role="button"></i>
                                 </div>
                             </div>
@@ -478,16 +538,42 @@ import { create } from "domain";
                                     <hr class="my-2">
                         
                                     <div
-                                        class="bg-secondary p-2 mb-1 rounded-3"
+                                        class="bg-secondary p-2 mb-1 rounded-3 d-flex"
                                         v-for="comment in comments.find(x => x.post_id === post.id)?.data.value"
                                     >
-                                        <span class="bg-secondary p-1 px-2 rounded-3 me-1">
-                                            {{ comment.author }}
-                                        </span>
-                        
-                                        <span>{{ comment.content }}</span>
+                                        <div class="col-9">
+                                            <span class="bg-secondary p-1 px-2 rounded-3 me-1">
+                                                {{ comment.author }}
+                                            </span>
+                                            <span>{{ comment.content }}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-end col-3 align-items-end">
+                                            
+                                            <span>
+                                                <i class="fa-solid fa-pen-to-square me-1"
+                                                    v-if="comment.userId == user.id"
+                                                    @click="setupEditModal(post.id, comment.id, comment.content, 'Komment')"
+                                                    role="button"></i>
+                                            
+                                                <i class="fa-solid fa-trash"
+                                                    v-if="comment.userId == user.id ||
+                                                          currentCourse?.role == 'teacher'"
+                                                @click="setupDeleteModal(post.id, comment.id, 'Komment')"
+                                                role="button"></i>
+                                            </span>
+                                        </div>
                                     </div> 
-                                    <a class="text-primary opacity-25">Komment hozzáadása</a>
+                                    <a class="text-primary opacity-25 user-select-none"
+                                       @click="toggleAddingComment()"
+                                       role="button"
+                                       v-if="!isAddingComment">
+                                        Komment hozzáadása
+                                    </a>
+                                    <div v-if="isAddingComment">
+                                        <input type="text" v-if="isAddingComment" class="form-control" v-model="commentInput">
+                                        <i class="fa-solid fa-paper-plane"
+                                           @click="submitComment(post.id)"></i>
+                                    </div>
                                 </div>
 
                                 <!-- Display quiz post -->

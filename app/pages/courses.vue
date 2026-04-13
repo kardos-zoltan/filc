@@ -206,13 +206,13 @@
                     <p class="m-0 fs-8 opacity-50 text-nowrap text-truncate">{{ course.teacherName }}</p>
                 </div>
             </NuxtLink>
-            <!-- Display average for this course, if it exists -->
+            <!-- Display average for this course, if not teacher -->
             <div 
                 class="
                     ms-2 px-2 w-auto border-0 bg-btn-secondary d-flex justify-content-center 
                     align-items-center user-select-none
                 " 
-                v-if="course.average != null"
+                v-if="course.teacherId !== user.id"
             >
                 <div 
                     class="bg-white average d-flex align-items-center justify-content-center rounded-pill"

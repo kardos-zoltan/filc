@@ -2,7 +2,7 @@ import { z } from "zod";
 
 // Define the schema for the request body
 const bodySchema = z.object({
-    content: z.string().max(2000),
+    content: z.string().max(150),
 });
 
 // Define the schema for the route parameters
@@ -15,13 +15,15 @@ export default defineEventHandler(async (event) => {
     // Parse body, return if error
     const body = await readValidatedBody(event, bodySchema.safeParse);
     if (body.error != null) throw createError({
-        status: 400 
+        status: 400,
+        statusMessage: "body error"
     });
     
     // Parse params, return if error
     const params = await getValidatedRouterParams(event, paramsSchema.safeParse);
     if (params.error != null) throw createError({
-        status: 400 
+        status: 400,
+        statusMessage: "param error" 
     });
 
     // If not logged in, retorn 401
@@ -50,11 +52,11 @@ export default defineEventHandler(async (event) => {
     // Create the comment
     const insertResult = await db.sql`
         INSERT INTO comments (user_id, post_id, content)
-        VALUES (1, ${event.context.auth.user.id}, ${body.data.content})
+        VALUES (${event.context.auth.user.id}, ${params.data.post_id}, ${body.data.content})
     `;
 
     // Error handling
-    if (insertResult.rows == null || insertResult.error) {
+    if (insertResult.error) {
         throw createError({
             status: 500,
             statusText: (import.meta.dev ? insertResult.error : "SQL Error")
