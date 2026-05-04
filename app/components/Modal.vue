@@ -2,6 +2,7 @@
     const dialog = useTemplateRef("dialog");
 
     function open() {
+        emit("open");
         dialog.value?.showModal();
     }
 
@@ -13,6 +14,8 @@
         open,
         close
     });
+
+    const emit = defineEmits(["open"]);
 </script>
 
 <template>

@@ -4,6 +4,10 @@
     import ConfirmModal from '~/components/ConfirmModal.vue';
     import InputModal from "~/components/InputModal.vue";
 
+    definePageMeta({
+        middleware: ["auth"]
+    });
+
     const route = useRoute();
 
     const user = useUserStore();
@@ -360,10 +364,10 @@
                     <ul class="dropdown-menu bg-dropdown p-0 ms-1 rounded-4 w-auto">
                         <li class="dropdown-item p-1">
                             <button 
-                                class="btn btn-secondary w-100 rounded-4"
+                                class="btn btn-secondary bg-danger bg-opacity-50 border w-100 rounded-4"
                                 @click="logout()"
                             >
-                                <span class="text-danger">Kilépés</span>
+                                <span class="text-link-secondary">Kijelentkezés</span>
                             </button>
                         </li>
                     </ul>
@@ -502,7 +506,33 @@
                                 v-model="postContent"
                             />
                             <div class="border-top border-white mx-2 py-2 d-flex">
-                                <button class="btn btn-transparent text-link-primary rounded-3">+</button>
+                                <div 
+                                    class="dropdown"
+                                    v-if="user.id === currentCourse?.teacherId"
+                                >
+                                    <button
+                                        class="btn btn-transparent text-link-primary rounded-3"
+                                        data-bs-toggle="dropdown"
+                                        aria-expanded="false"
+                                    >
+                                        +
+                                    </button>
+                                
+                                    <ul class="dropdown-menu bg-dropdown p-0 rounded-4 w-auto">
+                                        <li class="dropdown-item p-1">
+                                            <NuxtLink 
+                                                class="btn btn-secondary border w-100 rounded-4"
+                                                :to="`/course/${route.params.id}/quiz/create`"
+                                            >
+                                                <span class="text-link-secondary">
+                                                    <i class="fa-solid fa-clipboard"></i>
+                                                    Kvíz létrehozása
+                                                </span>
+                                            </NuxtLink>
+                                        </li>
+                                    </ul>
+                                </div>
+
                                 <button class="btn btn-transparent text-link-primary rounded-3 ms-auto"
                                         @click="sendPost()">Küldés</button>
                             </div>
@@ -610,6 +640,10 @@
 </template>
 
 <style scoped>
+    .add-question:hover {
+        filter: brightness(0);
+    }
+
     .textarea {
         resize: none;
     }

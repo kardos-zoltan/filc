@@ -25,17 +25,17 @@ export default defineEventHandler(async (event): Promise<null | Course> => {
             courses.id,
             courses.name,
             COALESCE(averages.average, 0) AS average,
-            teachers.id AS teacherId,
+            teacher_uc.user_id AS teacherId,
             teachers.name AS teacherName,
-            role_id AS role
-            (
-                SELECT COUNT(*)
-                FROM user_courses
-                WHERE user_courses.course_id = courses.id
-                AND user_courses.role_id = 1
-            ) AS student_count
+            user_roles.name AS role
         FROM
-            courses
+            user_courses AS student_uc
+
+        INNER JOIN
+            courses 
+        ON 
+            courses.id = student_uc.course_id
+
         LEFT JOIN (
             SELECT
                 grades.course_id,
@@ -49,20 +49,31 @@ export default defineEventHandler(async (event): Promise<null | Course> => {
             GROUP BY
                 grades.course_id
         ) AS averages
-        ON
+        ON 
             courses.id = averages.course_id
-        INNER JOIN
+
+        LEFT JOIN
             user_courses AS teacher_uc
         ON
             teacher_uc.course_id = courses.id
         AND 
             teacher_uc.role_id = 2
-        INNER JOIN
+
+        LEFT JOIN
             users AS teachers
         ON
             teachers.id = teacher_uc.user_id
+
+        INNER JOIN
+            user_roles
+        ON
+            student_uc.role_id = user_roles.id
+
         WHERE
+            student_uc.user_id = ${event.context.auth.user.id}
+        AND
             courses.id = ${params.data.course_id}
+        
         LIMIT 1
     `;
 

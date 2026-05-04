@@ -3,6 +3,12 @@
     src: url(./Roboto-VariableFont_wdth\,wght.ttf);
 }
 
+.border {
+    --bs-border-width: 3px;
+    --bs-border-color: rgba(0, 0, 0, 25%);
+    --bs-border-style: solid;
+}
+
 .bg-secondary {
     --bs-bg-opacity: 0.25
 }
@@ -13,12 +19,6 @@
 
 .row {
     --bs-gutter-x: 0
-}
-
-.border {
-    border-width: 3px !important;
-    border-color: rgba(0, 0, 0, 25%) !important;
-    border-style: solid !important;
 }
 
 * {

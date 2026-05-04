@@ -176,10 +176,10 @@
             <ul class="dropdown-menu bg-dropdown p-0 ms-1 rounded-4 w-auto">
                 <li class="dropdown-item p-1">
                     <button 
-                        class="btn btn-secondary w-100 rounded-4"
+                        class="btn btn-secondary bg-danger bg-opacity-50 border w-100 rounded-4"
                         @click="logout()"
                     >
-                        <span class="text-danger">Kilépés</span>
+                        <span class="text-link-secondary">Kijelentkezés</span>
                     </button>
                 </li>
             </ul>
