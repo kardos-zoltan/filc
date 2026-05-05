@@ -19,7 +19,9 @@
         label,
         modelValue,
         confirmFunction,
-        cancelFunction
+        cancelFunction,
+        textArea,
+        isNumber
     } = defineProps<{
         error: string | null
         question: string
@@ -28,6 +30,8 @@
         modelValue: string
         confirmFunction: () => void
         cancelFunction: () => void
+        textArea: boolean,
+        isNumber: boolean
     }>();
 
     const emit = defineEmits<{
@@ -41,7 +45,7 @@
     <Modal ref="modal">
         <ErrorMessage :error="error" />
 
-        <div class="rounded-4 border bg-secondary p-4 d-flex flex-column gap-2">
+        <div class="rounded-4 border bg-secondary bg-opacity-100 p-4 d-flex flex-column gap-2">
             <div class="row justify-content-center">
                 <p class="w-auto fs-3 m-0 text-link-secondary">{{ question }}</p>
             </div>
@@ -50,7 +54,14 @@
                 <label>
                     {{ label }}
                     <textarea class="form-control" :value="modelValue" style="field-sizing: content;"
-                        @input="emit('update:modelValue', ($event.target as HTMLInputElement).value)" />
+                              v-if="textArea && !isNumber"
+                              @input="emit('update:modelValue', ($event.target as HTMLInputElement).value)" />
+                    <input class="form-control" type="text" :value="modelValue"
+                           v-if="!textArea && !isNumber"
+                           @input="emit('update:modelValue', ($event.target as HTMLInputElement).value)">
+                    <input class="form-control" type="number" :value="modelValue" min="1" max="5"
+                           v-if="isNumber"
+                           @input="emit('update:modelValue', ($event.target as HTMLInputElement).value)">
                 </label>
             </div>
 

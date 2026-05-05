@@ -1,5 +1,6 @@
 <script setup lang="ts">
     import { FetchError } from "ofetch";
+    import InputModal from "~/components/InputModal.vue";
 
     definePageMeta({
         middleware: ["auth"]
@@ -15,8 +16,6 @@
     const courses = await useFetch<Course[]>("/api/course");
     const coursesData = courses.data;
 
-    const joinModal = useTemplateRef("joinModal");
-
     const courseCode = ref("");
     const codeError = ref<string | null>(null);
 
@@ -28,6 +27,8 @@
             });
 
             await navigateTo(`/course/${res}`);
+
+            courses.refresh();
         } catch (e: unknown) {
             const err = e as FetchError;
         
@@ -37,19 +38,16 @@
         }
     }
 
-    const createModal = useTemplateRef("createModal");
-
-    const courseName = ref("");
-    const createError = ref<string | null>(null);
-
     async function createCourse() {
         try {
-            const res = await $fetch("/api/course/", {
+            const res = await $fetch("/api/course", {
                 method: "POST",
-                body: { name: courseName.value }
+                body: { name: inputValue.value }
             });
 
             await navigateTo(`/course/${res}`);
+
+            courses.refresh();
         } catch (e: unknown) {
             const err = e as FetchError;
         
@@ -70,84 +68,61 @@
             window.location.reload();
         } catch {}
     }
+    
+    const question = ref("");
+    const confirmText = ref("");
+    const confirmFunction = ref();
+
+    const inputLabel = ref("");
+    const inputValue = ref("");
+    const textArea = ref(false);
+
+    const inputModal = ref<InstanceType<typeof InputModal> | null>(null);
+
+    async function setupCreateModal() {
+        question.value = "Kurzus létrehozása";
+        confirmText.value = "Létrehozás";
+        confirmFunction.value = createCourse;
+        inputLabel.value = "Kurzus neve:";
+        textArea.value = false;
+
+        inputModal.value?.open();
+    }
+    
+    async function setupJoinModal() {
+        question.value = "Belépés kurzusba";
+        confirmText.value = "Belépés";
+        confirmFunction.value = joinCourse;
+        inputLabel.value = "Kurzus belépési kód:"
+        textArea.value = false;
+
+        inputModal.value?.open();
+    }
+
+    async function resetInputModal() {
+        codeError.value = null;
+        question.value = "";
+        confirmText.value = "";
+        confirmFunction.value = null;
+        inputLabel.value = "";
+        inputValue.value = "";
+        textArea.value = false;
+
+        inputModal.value?.close();
+    }
 </script>
 
 <template>
-    <Modal ref="joinModal">
-        <!-- Erorr message -->
-        <div 
-            class="row w-auto mb-4 bg-danger bg-opacity-50 p-2 rounded-4 col-xl-4 col-lg-6 col-md-8 col-sm-10 col-12 border"
-            v-if="codeError != null" 
-        >
-            <p class="m-0">{{ codeError }}</p>
-        </div>
-
-        <div class="rounded-4 border bg-secondary p-4 d-flex flex-column gap-2">
-            <div class="row justify-content-center">
-                <p class="w-auto fs-3 m-0 text-link-secondary">Csatlakozás kurzushoz</p>
-            </div>
-            <div class="row justify-content-center mb-2">
-                <label>
-                    Kurzus kódja
-                    <input type="text" class="form-control" maxlength="8" v-model="courseCode">
-                </label>
-            </div>
-
-            <div class="row justify-content-center">
-                <button 
-                    class="btn w-auto border btn-primary text-link-primary me-2"
-                    @click="joinCourse()"
-                >
-                    Belépés
-                </button>
-
-                <button 
-                    class="btn w-auto border btn-secondary text-link-secondary border"
-                    @click="joinModal?.close()"
-                >
-                    Mégsem
-                </button>
-            </div>
-        </div>
-    </Modal>
-
-    <Modal ref="createModal">
-        <!-- Erorr message -->
-        <div 
-            class="row w-auto mb-4 bg-danger bg-opacity-50 p-2 rounded-4 col-xl-4 col-lg-6 col-md-8 col-sm-10 col-12 border"
-            v-if="createError != null" 
-        >
-            <p class="m-0">{{ createError }}</p>
-        </div>
-
-        <div class="rounded-4 border bg-secondary p-4 d-flex flex-column gap-2">
-            <div class="row justify-content-center">
-                <p class="w-auto fs-3 m-0 text-link-secondary">Kurzus létrehozása</p>
-            </div>
-            <div class="row justify-content-center mb-2">
-                <label>
-                    Kurzus neve
-                    <input type="text" class="form-control" maxlength="255" v-model="courseName">
-                </label>
-            </div>
-
-            <div class="row justify-content-center">
-                <button 
-                    class="btn w-auto border btn-primary text-link-primary me-2"
-                    @click="createCourse()"
-                >
-                    Létrehoz
-                </button>
-
-                <button 
-                    class="btn w-auto border btn-secondary text-link-secondary border"
-                    @click="createModal?.close()"
-                >
-                    Mégsem
-                </button>
-            </div>
-        </div>
-    </Modal>
+    <InputModal ref="inputModal"
+                v-model="inputValue"
+                :error="codeError"
+                :question="question"
+                :confirm-text="confirmText"
+                :confirm-function="confirmFunction ?? joinCourse"
+                :cancel-function="resetInputModal"
+                :label="inputLabel"
+                :textArea="textArea"
+                :is-number="false"></InputModal>
 
     <div class="container-fluid">
         <!-- user -->
@@ -260,7 +235,7 @@
                 <li class="dropdown-item p-1 pb-0">
                     <button 
                         class="btn btn-secondary text-link-secondary bg-opacity-0 px-2 w-100 rounded-4 rounded-bottom-0"
-                        @click="joinModal?.open()"
+                        @click="setupJoinModal()"
                     >
                         Kurzusba belépés
                     </button>
@@ -268,7 +243,7 @@
                 <li class="dropdown-item p-1">
                     <button 
                         class="btn btn-secondary text-link-secondary bg-opacity-0 px-2 w-100 rounded-4 rounded-top-0"
-                        @click="createModal?.open()"
+                        @click="setupCreateModal()"
                     >
                         Kurzus létrehozása
                     </button>

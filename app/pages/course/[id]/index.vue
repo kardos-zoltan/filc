@@ -3,6 +3,7 @@
     import QuizPost from '~/components/QuizPost.vue';
     import ConfirmModal from '~/components/ConfirmModal.vue';
     import InputModal from "~/components/InputModal.vue";
+    import StudentsModal from "~/components/StudentsModal.vue";
 
     definePageMeta({
         middleware: ["auth"]
@@ -31,6 +32,11 @@
         return res;
     };
 
+    const students = 
+        (currentCourse?.value?.role == "teacher") 
+        ? useFetch(`/api/course/${route.params.id}/students` as "/api/course/:course_id/students")
+        : ref(undefined);
+
     async function sendPost() {
         try {
             await $fetch(`/api/course/${route.params.id}/post/text`, {
@@ -44,7 +50,6 @@
             codeError.value = "Hiba a posztolás során!";
         }
     };
-
 
     const selectedId = ref(0);
     const selectedComment = ref(0);
@@ -216,7 +221,6 @@
     }
 
     async function deleteComment() {
-        console.log("deleting ", selectedComment.value, " on course: ", route.params.id, " on post: ", selectedId.value)
         try {
             await $fetch(`/api/course/${route.params.id}/post/${selectedId.value}/comment/${selectedComment.value}`, {
                 method: "DELETE"
@@ -236,6 +240,8 @@
 
     const inputLabel = ref("");
     const inputValue = ref("");
+    const textArea = ref(false);
+    const isNumber = false;
 
     const inputModal = ref<InstanceType<typeof InputModal> | null>(null);
 
@@ -256,6 +262,7 @@
         confirmFunction.value = null;
         inputLabel.value = "";
         inputValue.value = "";
+        textArea.value = false;
 
         if (resetSelectedIds) {
             selectedId.value = 0;
@@ -291,6 +298,7 @@
         confirmText.value = "Belépés";
         confirmFunction.value = joinCourse;
         inputLabel.value = "Kurzus belépési kód:"
+        textArea.value = false;
 
         inputModal.value?.open();
     }
@@ -300,6 +308,7 @@
         confirmText.value = "Létrehozás";
         confirmFunction.value = createCourse;
         inputLabel.value = "Kurzus neve:";
+        textArea.value = false;
 
         inputModal.value?.open();
     }
@@ -310,11 +319,18 @@
         confirmFunction.value = type == "Poszt" ? editPost : editComment;
         inputLabel.value = "";
         inputValue.value = type == "Poszt" ? JSON.parse(content) : content; 
+        textArea.value = type == "Poszt" ? true : false;
         selectedId.value = id;
         selectedComment.value = commentId ?? 0;
 
         inputModal.value?.open();
     }
+
+    const studentsModal = ref<InstanceType<typeof ConfirmModal> | null>(null);
+        
+    async function showStudentsModal() {
+        studentsModal.value?.open();
+    } 
 </script>
 
 <template>
@@ -333,7 +349,13 @@
                 :confirm-text="confirmText"
                 :confirm-function="confirmFunction ?? joinCourse"
                 :cancel-function="resetInputModal"
-                :label="inputLabel"></InputModal>
+                :label="inputLabel"
+                :textArea="textArea"
+                :is-number="isNumber"></InputModal>
+
+    <StudentsModal ref="studentsModal"
+                   :students="students?.data.value"
+                   :course-id="currentCourse?.id"></StudentsModal>
     
     <div class="container-fluid">
         <div class="d-flex">
@@ -463,12 +485,12 @@
                             class="bg-secondary rounded-4 border d-flex justify-content-center align-items-center flex-column py-2"
                             v-if="currentCourse?.role === 'student'"
                         >
-                            <p class="fs-3 mb-0 text-center">Átlag</p>
-                            <div class="bg-white average d-flex align-items-center justify-content-center rounded-circle fs-5">
+                            <p class="fs-3 mb-0 text-center user-select-none">Átlag</p>
+                            <div class="bg-amber-50 average d-flex align-items-center justify-content-center rounded-circle fs-5">
                                 <div v-if="currentCourse?.average !== 0">{{ currentCourse.average }}</div>
                                 <div v-else>...</div>
                             </div>
-                            <NuxtLink class="mt-2 text-center lh-sm">Jegyek megtekintése</NuxtLink>
+                            <NuxtLink class="mt-2 text-center lh-sm user-select-none">Jegyek megtekintése</NuxtLink>
                         </div>
 
                         <!-- Display student count if teacher-->
@@ -476,11 +498,16 @@
                             class="bg-secondary rounded-4 border d-flex justify-content-center align-items-center flex-column py-2"
                             v-if="currentCourse?.role === 'teacher'"
                         >
-                            <p class="fs-3 mb-0 text-center">Tanulók</p>
-                            <div class="bg-white average d-flex align-items-center justify-content-center rounded-circle fs-5">
+                            <p class="fs-3 mb-0 text-center user-select-none">Tanulók</p>
+                            <div class="bg-amber-50 average d-flex align-items-center justify-content-center rounded-circle fs-5">
                                 <div>{{ currentCourse?.studentCount ?? 0 }}</div>
                             </div>
-                            <NuxtLink class="mt-2 text-center lh-sm">Tanulók megtekintése</NuxtLink>
+                            <span class="mt-2 text-center lh-sm user-select-none"
+                                  role="button"
+                                  @click="showStudentsModal()"
+                                  >
+                                  Tanulók megtekintése
+                                </span>
                         </div>
                         
                         <hr>
@@ -599,10 +626,14 @@
                                        v-if="!isAddingComment">
                                         Komment hozzáadása
                                     </a>
-                                    <div v-if="isAddingComment">
+                                    <div v-if="isAddingComment" class="d-flex">
                                         <input type="text" v-if="isAddingComment" class="form-control" v-model="commentInput">
-                                        <i class="fa-solid fa-paper-plane"
-                                           @click="submitComment(post.id)"></i>
+                                        <div class="d-flex justify-content-center align-items-center px-2 gap-2">
+                                            <i class="fa-solid fa-paper-plane"
+                                               @click="submitComment(post.id)"></i>
+                                            <i class="fa-solid fa-x"
+                                               @click="toggleAddingComment()"></i>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -623,7 +654,7 @@
                         <div class="bg-secondary rounded-4 d-flex justify-content-center align-items-center flex-column">
                             <div class="bg-secondary text-center w-100 rounded-4 rounded-bottom-0 fs-4 py-2">Feladatok</div>
                             <div v-if="postsData?.filter(x => x.completedAt).length == 0">
-                                <p class="my-3">Nincsenek megcsinálandó feladatok!</p>
+                                <p class="my-3">Nincsenek teendő feladatok!</p>
                             </div>
                             <div
                                 class="p-3 w-100"
@@ -687,5 +718,9 @@
         height: 30px;
         width: 30px;
         border-radius: 50%;
+    }
+
+    .bg-amber-50 {
+        background-color: rgba(255, 248, 225)
     }
 </style>

@@ -10,7 +10,8 @@
 }
 
 .bg-secondary {
-    --bs-bg-opacity: 0.25
+    --bs-bg-opacity: 0.25;
+    backdrop-filter: blur(20px)
 }
 
 .btn-secondary {

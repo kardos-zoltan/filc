@@ -30,3 +30,18 @@ type Comment2 = {
     content: string,
     userId: number
 }
+
+type Student = {
+    user_id: number,
+    name: string,
+    average: number,
+    grades: Grade[]
+}
+
+type Grade = {
+    id: number,
+    name: string,
+    grade: number,
+    weight: number,
+    date: string
+}

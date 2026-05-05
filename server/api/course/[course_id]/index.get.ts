@@ -27,7 +27,13 @@ export default defineEventHandler(async (event): Promise<null | Course> => {
             COALESCE(averages.average, 0) AS average,
             teacher_uc.user_id AS teacherId,
             teachers.name AS teacherName,
-            user_roles.name AS role
+            role_id AS role,
+            (
+                SELECT COUNT(*)
+                FROM user_courses
+                WHERE user_courses.course_id = courses.id
+                AND user_courses.role_id = 1
+            ) AS studentCount
         FROM
             user_courses AS student_uc
 
