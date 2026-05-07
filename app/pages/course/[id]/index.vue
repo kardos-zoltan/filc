@@ -9,11 +9,29 @@
         middleware: ["auth"]
     });
 
+    // Get route data
     const route = useRoute();
 
+    // Get user's data
     const user = useUserStore();
     await callOnce(user.fetch);
+    
+    async function logout() {
+        try {
+            await $fetch("/api/auth/logout");
 
+            await navigateTo("/", {
+                replace: true
+            });
+
+            window.location.reload();
+        } catch {}
+    }
+
+    // Variable for showing error messages
+    const codeError = ref<string | null>(null);
+
+    // Get courses data, current course
     const courses = await useFetch("/api/course");
     const coursesData = courses.data;
 
@@ -21,19 +39,18 @@
         () => coursesData.value?.find(x => x.id === Number(route.params.id))
     );
 
+    // Get students data
+    const students = useFetch(`/api/course/${route.params.id}/students` as "/api/course/:course_id/students");
+    
+    // Get posts data    
     const posts = await useFetch(`/api/course/${route.params.id}/post`);
     const postsData = computed(() => posts.data.value?.map(x => ({ ...x, posted_at: new Date(x.posted_at)})));
     const postContent = ref("");
 
-    function usePromise<T>(promise: Promise<T>): Ref<null | T> {
-        const res = ref<any>(null)
-        promise.then(x => res.value = x);
+    // Selected post's id
+    const selectedId = ref(0);
 
-        return res;
-    };
-
-    const students = useFetch(`/api/course/${route.params.id}/students` as "/api/course/:course_id/students");
-
+    // Post functions
     async function sendPost() {
         try {
             await $fetch(`/api/course/${route.params.id}/post/text`, {
@@ -47,9 +64,6 @@
             codeError.value = "Hiba a posztolás során!";
         }
     };
-
-    const selectedId = ref(0);
-    const selectedComment = ref(0);
     
     async function editPost() {
         if (inputValue.value == "") {
@@ -69,7 +83,6 @@
         }
     }
 
-
     async function deletePost() {
         try {
             await $fetch(`/api/course/${route.params.id}/post/${selectedId.value}`, {
@@ -81,21 +94,35 @@
             codeError.value = "Hiba a törlés során!";
         }
     }
-
+    
+    // Put promise into ref value
+    function usePromise<T>(promise: Promise<T>): Ref<null | T> {
+        const res = ref<any>(null)
+            promise.then(x => res.value = x);
+            
+            return res;
+        };
+        
+    //Get comments data
     const comments = computed(
         () => postsData.value?.map(
             x => ({ 
                 post_id: x.id, 
                 data: usePromise(
                     $fetch<unknown>(`/api/course/${route.params.id}/post/${x.id}/comment`) as Promise<Comment2[]>
-                ) 
-            })
-        ) ?? []
-    );
+                    ) 
+                })
+            ) ?? []
+        );
+            
+    // Selected comment's id
+    const selectedComment = ref(0);
 
+    // Variables for adding comments
     const isAddingComment = ref(false);
     const commentInput = ref("");
 
+    // Comment functions
     async function toggleAddingComment() {
         if (isAddingComment.value) {
             isAddingComment.value = false;
@@ -121,88 +148,7 @@
             alert(codeError.value)
         }
     }
-
-    const codeError = ref<string | null>(null);
-
-    async function joinCourse() {
-        try {
-            const res = await $fetch("/api/course/join", {
-                method: "POST",
-                body: { join_code: inputValue.value }
-            });
-
-            await navigateTo(`/course/${res}`);
-
-            courses.refresh();
-        } catch (e: unknown) {
-            const err = e as FetchError;
-        
-            if (err.status === 404) {
-                codeError.value = "A kurzus nem található vagy nem létezik!";
-            }
-        }
-    }
-
-    const currentCode = 
-        (currentCourse?.value?.role == "teacher")
-        ? await useFetch(`/api/course/${route.params.id}/code`)
-        : ref(undefined);
-
-    async function createCourse() {
-        try {
-            const res = await $fetch("/api/course", {
-                method: "POST",
-                body: { name: inputValue.value }
-            });
-
-            await navigateTo(`/course/${res}`);
-
-            courses.refresh();
-        } catch (e: unknown) {
-            const err = e as FetchError;
-        
-            if (err.status === 404) {
-                codeError.value = "A kurzus nem található vagy nem létezik!";
-            }
-        }
-    }
-
-    async function logout() {
-        try {
-            await $fetch("/api/auth/logout");
-
-            await navigateTo("/", {
-                replace: true
-            });
-
-            window.location.reload();
-        } catch {}
-    }
     
-    async function leaveCourse() {
-        try {
-            await $fetch(`/api/course/${route.params.id}/leave`, {
-                method: "GET"
-            });
-            await navigateTo(`/courses/`)
-        } catch (e: unknown) {
-            codeError.value = "Hiba a kilépés során, próbálja újra!"
-        }
-
-    }
-
-    async function deleteCourse() {
-        try {
-            await $fetch(`/api/course/${route.params.id}/`, {
-                method: "DELETE"
-            });
-            await navigateTo(`/courses/`)
-        } catch (e: unknown) {
-            codeError.value = "Hiba a törlés során, próbálja újra!"
-        }
-    }
-
-
     async function editComment() {
         if (inputValue.value == "") {
             resetInputModal(false);
@@ -233,19 +179,95 @@
         }
     }
 
+    // The join code for the course (or undefined if user is student)
+    const currentCode = 
+        (currentCourse?.value?.role == "teacher")
+        ? await useFetch(`/api/course/${route.params.id}/code`)
+        : ref(undefined);
+
+    // Course functions 
+    async function joinCourse() {
+        try {
+            const res = await $fetch("/api/course/join", {
+                method: "POST",
+                body: { join_code: inputValue.value }
+            });
+
+            await navigateTo(`/course/${res}`);
+
+            courses.refresh();
+        } catch (e: unknown) {
+            const err = e as FetchError;
+        
+            if (err.status === 404) {
+                codeError.value = "A kurzus nem található vagy nem létezik!";
+            }
+        }
+    }
+    
+    async function leaveCourse() {
+        try {
+            await $fetch(`/api/course/${route.params.id}/leave`, {
+                method: "GET"
+            });
+            await navigateTo(`/courses/`)
+        } catch (e: unknown) {
+            codeError.value = "Hiba a kilépés során, próbálja újra!"
+        }
+
+    }
+
+    async function createCourse() {
+        try {
+            const res = await $fetch("/api/course", {
+                method: "POST",
+                body: { name: inputValue.value }
+            });
+
+            await navigateTo(`/course/${res}`);
+
+            courses.refresh();
+        } catch (e: unknown) {
+            const err = e as FetchError;
+        
+            if (err.status === 404) {
+                codeError.value = "A kurzus nem található vagy nem létezik!";
+            }
+        }
+    }
+
+    async function deleteCourse() {
+        try {
+            await $fetch(`/api/course/${route.params.id}/`, {
+                method: "DELETE"
+            });
+            await navigateTo(`/courses/`)
+        } catch (e: unknown) {
+            codeError.value = "Hiba a törlés során, próbálja újra!"
+        }
+    }
+    
+    // Modals
+    const confirmModal = ref<InstanceType<typeof ConfirmModal> | null>(null);
+    const inputModal = ref<InstanceType<typeof InputModal> | null>(null);
+    const studentsModal = ref<InstanceType<typeof ConfirmModal> | null>(null);
+
+    // Variables for Modal modularity
+    
+    // All modals
     const question = ref("");
     const confirmText = ref("");
     const confirmFunction = ref();
+    const textArea = ref(false);
 
-    const confirmModal = ref<InstanceType<typeof ConfirmModal> | null>(null);
-
+    // Input modal
     const inputLabel = ref("");
     const inputValue = ref("");
-    const textArea = ref(false);
-    const isNumber = false;
 
-    const inputModal = ref<InstanceType<typeof InputModal> | null>(null);
+    // Grades modal
+    const studentToBeViewed = ref(0);
 
+    // Modal reset functions
     async function resetConfirmModal() {
         codeError.value = null;
         question.value = "";
@@ -273,7 +295,7 @@
         inputModal.value?.close();
     }
 
-        
+    // Modal setup functions
     async function setupDeleteModal(id: number, commentId: number | null = null, type: string | null = "Poszt") {
         question.value = type + " törlése";
         confirmText.value = "Törlés";
@@ -327,9 +349,7 @@
         inputModal.value?.open();
     }
 
-    const studentsModal = ref<InstanceType<typeof ConfirmModal> | null>(null);
-    const studentToBeViewed = ref(0);
-
+    // Student modal show function
     async function showStudentsModal() {
         if (currentCourse.value?.role == "student") {
             studentToBeViewed.value = user.id;
@@ -356,7 +376,7 @@
                 :cancel-function="resetInputModal"
                 :label="inputLabel"
                 :textArea="textArea"
-                :is-number="isNumber"></InputModal>
+                :is-number="false"></InputModal>
 
     <StudentsModal ref="studentsModal"
                    :students="students?.data.value"

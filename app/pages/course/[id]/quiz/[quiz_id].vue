@@ -33,11 +33,8 @@
 
         return { ...quiz.data.value?.content, questions };;
     });
-    watch(formInit, (v) => console.log(v))
     
     const createQuizError = ref<string | null>(null);
-
-    const dueActive = ref(false);
 
     const formSchema = z.object({
         title: z.string().min(1).max(200),
@@ -92,8 +89,6 @@
 
     async function submitQuiz(_values: unknown) {
         const values = _values as z.infer<typeof formSchema>;
-        
-        console.log(values)
         
         try {
             await $fetch(

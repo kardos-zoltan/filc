@@ -33,9 +33,12 @@
     const codeError = ref("");
     const selectedGrade = ref<Grade>();
     const inputValue = ref("1");
-    const inputLabel = "Módosítás";
-    const textArea = false;
-    const isNumber = true;
+    
+    const emit = defineEmits(['toggle-background'])
+
+    function toggleBackground() {
+        emit('toggle-background');
+    }
 
     async function setupDeleteModal(grade: Grade) {
         selectedGrade.value = grade;
@@ -63,12 +66,6 @@
         catch {
             codeError.value = "Hiba, próbálja úrja később!";
         }
-    }
-
-    const emit = defineEmits(['toggle-background'])
-
-    function toggleBackground() {
-        emit('toggle-background');
     }
 
     async function modifyGrade() {
@@ -108,9 +105,9 @@
                 :confirm-text="confirmText"
                 :confirm-function="modifyGrade"
                 :cancel-function="resetInputModal"
-                :label="inputLabel"
-                :textArea="textArea"
-                :is-number="isNumber"></InputModal>
+                :label="'Módosítás'"
+                :textArea="false"
+                :is-number="true"></InputModal>
 
     <Modal ref="modal" class="w-50">
         <table class="table table-responsive table-striped text-center table-bordered">
@@ -124,11 +121,12 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="grade in student?.grades">
+                <tr v-for="grade in student?.grades" v-if="student?.grades">
                     <td>{{ grade.name }}</td>
                     <td> {{ grade.grade }}</td>
                     <td> {{ grade.weight * 100 }}%</td>
                     <td> {{ Intl.DateTimeFormat(undefined, { year: "numeric", month: "numeric", day: "numeric", hour: "numeric", minute: "numeric" }).format(new Date(grade.date)) }}</td>
+                    
                     <td v-if="isTeacher">
                         <button class="btn btn-primary bg-opacity-50 w-auto border text-link-primary me-2"
                                 role="button"
@@ -142,6 +140,9 @@
                         </button>
                     </td>
                 </tr> 
+                <tr v-else>
+                    <td colspan="9999"> Nincs jegy!</td>
+                </tr>
             </tbody>
         </table>
         <div class="d-flex justify-content-end">

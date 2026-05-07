@@ -53,12 +53,16 @@
             <div class="row justify-content-center mb-2">
                 <label>
                     {{ label }}
+
+                    <!-- Input type changes depending on textArea & isNumber for different uses-->
                     <textarea class="form-control" :value="modelValue" style="field-sizing: content;"
                               v-if="textArea && !isNumber"
                               @input="emit('update:modelValue', ($event.target as HTMLInputElement).value)" />
+
                     <input class="form-control" type="text" :value="modelValue"
                            v-if="!textArea && !isNumber"
                            @input="emit('update:modelValue', ($event.target as HTMLInputElement).value)">
+
                     <input class="form-control" type="number" :value="modelValue" min="1" max="5"
                            v-if="isNumber"
                            @input="emit('update:modelValue', ($event.target as HTMLInputElement).value)">
