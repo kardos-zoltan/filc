@@ -70,19 +70,22 @@
 
         <!-- Explanation segment -->
         <div class="row mt-5">
-            <div v-for="item in explanationItems" class="card mb-3">
+            <div v-for="item, index in explanationItems" class="card border-0">
                 <div class="row g-0">
-                    <div class="col-md-8">
-                        <div class="card-body">
-                            <p class="card-text">
-                                {{item.text}}
-                            </p>
-                        </div> 
+                    <div class="col-md-4 d-flex justify-content-center justify-content-lg-end" v-if="index % 2 === 0">
+                        <img :src="item.path" class="img-fluid rounded-start" alt="Image">
                     </div>
-                    <div class="col-md-4">
-                        <img v-bind:src="item.path" class="img-fluid rounded-start" alt="Image">
+                    <div class="col-md-8 d-flex justify-content-center align-items-center">
+                        <span class="card-text">
+                            {{ item.text }}
+                        </span>
+                    </div>
+                    <div class="col-md-4 d-flex justify-content-center justify-content-lg-start" v-if="index % 2 !== 0">
+                        <img :src="item.path" class="img-fluid rounded-start" alt="Image">
                     </div>
                 </div>
+
+                <hr class="my-4">
             </div> 
         </div>
     </div>
