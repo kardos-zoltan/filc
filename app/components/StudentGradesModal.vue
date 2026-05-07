@@ -18,10 +18,12 @@
 
     const {
         student,
-        courseId
+        courseId,
+        isTeacher,
     } = defineProps<{
         student: Student | undefined,
-        courseId: number |undefined
+        courseId: number |undefined,
+        isTeacher: boolean
     }>();
 
     defineExpose({ open, close });
@@ -88,6 +90,7 @@
         inputValue.value = "1";
         inputModal.value?.close();
     }
+
 </script>
 
 <template>
@@ -117,7 +120,7 @@
                     <th>Jegy</th>
                     <th>Jegy súlya</th>
                     <th>Dátum</th>
-                    <th></th>
+                    <th v-if="isTeacher"></th>
                 </tr>
             </thead>
             <tbody>
@@ -126,7 +129,7 @@
                     <td> {{ grade.grade }}</td>
                     <td> {{ grade.weight * 100 }}%</td>
                     <td> {{ Intl.DateTimeFormat(undefined, { year: "numeric", month: "numeric", day: "numeric", hour: "numeric", minute: "numeric" }).format(new Date(grade.date)) }}</td>
-                    <td>
+                    <td v-if="isTeacher">
                         <button class="btn btn-primary bg-opacity-50 w-auto border text-link-primary me-2"
                                 role="button"
                                 @click="setupEditModal(grade)">
@@ -138,7 +141,7 @@
                             Jegy törlése
                         </button>
                     </td>
-                </tr>
+                </tr> 
             </tbody>
         </table>
         <div class="d-flex justify-content-end">

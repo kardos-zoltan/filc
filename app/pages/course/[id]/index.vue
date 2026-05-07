@@ -32,10 +32,7 @@
         return res;
     };
 
-    const students = 
-        (currentCourse?.value?.role == "teacher") 
-        ? useFetch(`/api/course/${route.params.id}/students` as "/api/course/:course_id/students")
-        : ref(undefined);
+    const students = useFetch(`/api/course/${route.params.id}/students` as "/api/course/:course_id/students");
 
     async function sendPost() {
         try {
@@ -327,8 +324,12 @@
     }
 
     const studentsModal = ref<InstanceType<typeof ConfirmModal> | null>(null);
-        
+    const studentToBeViewed = ref(0);
+
     async function showStudentsModal() {
+        if (currentCourse.value?.role == "student") {
+            studentToBeViewed.value = user.id;
+        }
         studentsModal.value?.open();
     } 
 </script>
@@ -355,8 +356,10 @@
 
     <StudentsModal ref="studentsModal"
                    :students="students?.data.value"
-                   :course-id="currentCourse?.id"></StudentsModal>
-    
+                   :course-id="currentCourse?.id"
+                   :student-to-be-viewed="studentToBeViewed"
+                   @reset-student="studentToBeViewed = 0"></StudentsModal>
+
     <div class="container-fluid">
         <div class="d-flex">
             <div class="w-auto">
@@ -490,7 +493,18 @@
                                 <div v-if="currentCourse?.average !== 0">{{ currentCourse.average }}</div>
                                 <div v-else>...</div>
                             </div>
+<<<<<<< HEAD:app/pages/course/[id]/index.vue
                             <NuxtLink class="mt-2 text-center lh-sm user-select-none">Jegyek megtekintése</NuxtLink>
+||||||| 7722a18:app/pages/course/[id].vue
+                            <NuxtLink class="mt-2 text-center lh-sm">Jegyek megtekintése</NuxtLink>
+=======
+                            <span class="mt-2 text-center lh-sm user-select-none"
+                                  role="button"
+                                  @click="showStudentsModal()"
+                                  >
+                                  Jegyek megtekintése
+                                </span>
+>>>>>>> view-grades:app/pages/course/[id].vue
                         </div>
 
                         <!-- Display student count if teacher-->

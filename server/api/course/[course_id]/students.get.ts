@@ -18,19 +18,6 @@ export default defineEventHandler(async (event): Promise<Student[]> => {
 
     const db = useDatabase();
 
-    // Get the teacher id for the course
-    const teacherId = await db.sql`
-        SELECT user_id
-        FROM user_courses
-        WHERE course_id = ${params.data.course_id}
-        AND role_id = 2
-    `;
-
-    // If the logged in user is not the teacher, return 403
-    if (teacherId.rows?.at(0)?.user_id !== event.context.auth.user.id) throw createError({
-        status: 403, 
-    });
-    
     const studentsResult = await db.sql`
        SELECT
             user_courses.user_id,

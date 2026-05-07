@@ -27,8 +27,11 @@ export default defineEventHandler(async (event): Promise<Grade[]> => {
         AND role_id = 2
     `;
 
-    // If the logged in user is not the teacher, return 403
-    if (teacherId.rows?.at(0)?.user_id !== event.context.auth.user.id) throw createError({
+    const isTeacher = teacherId.rows?.at(0)?.user_id == event.context.auth.user.id;
+    const isRequestedUser = params.data.student_id == event.context.auth.user.id;
+
+    // If the logged in user is not the teacher or the requested user, return 403
+    if (!isTeacher && !isRequestedUser) throw createError({
         status: 403, 
     });
     

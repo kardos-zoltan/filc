@@ -17,7 +17,7 @@
 
     async function removeStudent() {
         try {
-            $fetch(`/api/course/${courseId}/student/${selectedStudent.value?.user_id}/kick`, {
+            $fetch(`/api/course/${props.courseId}/student/${selectedStudent.value?.user_id}/kick`, {
                 method : "POST"
             })
             confirmModal.value?.close();
@@ -40,16 +40,14 @@
     })
 
 
-    const {
-        students,
-        courseId
-    } = defineProps<{
+    const props = defineProps<{
         students: Student[] | undefined,
-        courseId: number | undefined
+        courseId: number | undefined,
+        studentToBeViewed: number
     }>();
 
     async function showStudentGradeModal(student: Student) {
-        student.grades = (await $fetch(`/api/course/${courseId}/student/${student.user_id}/grades`)) as unknown as Grade[];
+        student.grades = (await $fetch(`/api/course/${props.courseId}/student/${student.user_id}/grades`)) as unknown as Grade[];
         
         selectedStudent.value = student;
         toggleBackground();
@@ -62,10 +60,22 @@
     }
 
     const inBackground = ref(false);
+    const isTeacher = ref(true);
+
+    const emit = defineEmits(["reset-student"]);
 
     async function toggleBackground() {
         inBackground.value = !inBackground.value;
     }
+
+    watch(props, () => {
+        if (props.studentToBeViewed != 0) {
+            isTeacher.value = false;
+            showStudentGradeModal(props.students?.find(student =>student.user_id == props.studentToBeViewed)!)
+            emit("reset-student");
+            close();
+        }
+    })
 </script>
 <template>
     <ConfirmModal ref="confirmModal"
@@ -79,10 +89,12 @@
     <StudentGradesModal ref="studentGradesModal"
                         :student="selectedStudent"
                         :course-id="courseId"
-                        @toggle-background="toggleBackground()"></StudentGradesModal>
+                        :is-teacher="isTeacher"
+                        @toggle-background="toggleBackground()"
+                        ></StudentGradesModal>
 
     <Modal ref="modal" class="w-50" :class="{'d-none': inBackground}"> 
-        <table class="table table-responsive table-striped text-center table-bordered">
+        <table class="table table-responsive table-striped text-center table-bordered" v-if="isTeacher">
             <thead>
                 <tr>
                     <th>Tanuló</th>
