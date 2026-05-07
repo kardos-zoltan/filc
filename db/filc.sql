@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: May 06, 2026 at 04:29 PM
+-- Generation Time: May 07, 2026 at 03:28 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -124,7 +124,8 @@ INSERT INTO `posts` (`id`, `type_id`, `course_id`, `user_id`, `posted_at`, `cont
 CREATE TABLE `post_completed` (
   `post_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
-  `completed_at` datetime NOT NULL
+  `answers` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`answers`)),
+  `completed_at` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 
 -- --------------------------------------------------------

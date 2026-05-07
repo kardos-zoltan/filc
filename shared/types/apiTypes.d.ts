@@ -20,7 +20,7 @@ type Post = {
     userId: number,
     posted_at: string,
     author: string,
-    completedAt: null | Date
+    completed_at: null | Date
 }
 
 type Comment2 = {

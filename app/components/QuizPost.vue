@@ -1,9 +1,12 @@
 <script setup lang="ts">
 	const { post } = defineProps<{
-		post: Omit<Omit<Post, "posted_at">, "completedAt">
+		post: Omit<Post, "posted_at">
 	}>();
 
+	console.log(post)
 	const content: any = computed(() => JSON.parse(post.content, (key, value) => key === "date" ? Date.parse(value) : value))
+
+	const route = useRoute();
 </script>
 
 <template>
@@ -26,8 +29,13 @@
 					Határidő: {{ Intl.DateTimeFormat().format(content.date) }}
 				</p>
 			</div>
-			<div class="col-4 p-2">
-				<button class="btn btn-primary h-100 w-100 text-center p-0">Kinyit</button>
+			<div class="col-4 p-2" v-if="post.completed_at === null">
+				<button 
+					class="btn btn-primary h-100 w-100 text-center p-0"
+					@click="navigateTo(`/course/${route.params.id}/quiz/${post.id}`)"
+				>
+					Kinyit
+				</button>
 			</div>
 		</div>
 	</div>

@@ -192,7 +192,7 @@
                 <div 
                     class="bg-white average d-flex align-items-center justify-content-center rounded-pill"
                 >
-                    <div v-if="course.average !== 0">{{ course.average }}</div>
+                    <div v-if="course.average !== 0">{{ course.average?.toFixed(2) }}</div>
                     <div v-else>...</div>
                 </div>
                 <p class="m-0 ms-2">Átlag</p>

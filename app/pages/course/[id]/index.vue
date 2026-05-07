@@ -494,21 +494,15 @@
                         >
                             <p class="fs-3 mb-0 text-center user-select-none">Átlag</p>
                             <div class="bg-amber-50 average d-flex align-items-center justify-content-center rounded-circle fs-5">
-                                <div v-if="currentCourse?.average !== 0">{{ currentCourse.average }}</div>
+                                <div v-if="currentCourse?.average !== 0">{{ currentCourse.average?.toFixed(2) }}</div>
                                 <div v-else>...</div>
                             </div>
-<<<<<<< HEAD:app/pages/course/[id]/index.vue
-                            <NuxtLink class="mt-2 text-center lh-sm user-select-none">Jegyek megtekintése</NuxtLink>
-||||||| 7722a18:app/pages/course/[id].vue
-                            <NuxtLink class="mt-2 text-center lh-sm">Jegyek megtekintése</NuxtLink>
-=======
                             <span class="mt-2 text-center lh-sm user-select-none"
                                   role="button"
                                   @click="showStudentsModal()"
                                   >
                                   Jegyek megtekintése
                                 </span>
->>>>>>> view-grades:app/pages/course/[id].vue
                         </div>
 
                         <!-- Display student count if teacher-->
@@ -670,7 +664,7 @@
 
                                 <!-- Display quiz post -->
                                 <div class="" v-if="post.type === 'quiz'">
-                                    <QuizPost :post />
+                                    <QuizPost :post="post as any" />
                                 </div>
                             </div>
                         </div> 
@@ -684,14 +678,14 @@
                     >
                         <div class="bg-secondary rounded-4 d-flex justify-content-center align-items-center flex-column">
                             <div class="bg-secondary text-center w-100 rounded-4 rounded-bottom-0 fs-4 py-2">Feladatok</div>
-                            <div v-if="postsData?.filter(x => x.completedAt).length == 0">
+                            <div v-if="postsData?.filter(x => x.completed_at).length == 0">
                                 <p class="my-3">Nincsenek teendő feladatok!</p>
                             </div>
                             <div
                                 class="p-3 w-100"
-                                v-for="post in postsData?.filter(x => x.completedAt)"
+                                v-for="post in postsData?.filter(x => x.completed_at)"
                             >
-                                <QuizPost :post/>
+                                <QuizPost :post="(post as any)"/>
                             </div>
                         </div>
                     </div> 
