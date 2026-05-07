@@ -106,14 +106,14 @@
                 <tr v-for="student in students" v-if="students?.length">
                     <td>{{ student.name }}</td>
                     <td>{{ student.average == 0 ? "-" : student.average }}</td>
-                    <td>
+                    <td class="d-flex justify-content-end">
                         <button class="btn btn-primary bg-opacity-50 w-auto border text-link-primary me-2"
                                 role="button"
                                 v-bind:disabled="student.average == 0"
                                 @click="showStudentGradeModal(student)">
                             Jegyek megtekintése
                         </button>
-                        <button class="btn bg-danger bg-opacity-50 w-auto border btn-secondary text-link-secondary me-2"
+                        <button class="btn bg-danger bg-opacity-50 w-auto border btn-secondary text-link-secondary"
                                 role="button"
                                 @click="setupConfirmModal(student)">
                             Kirugás
@@ -128,7 +128,7 @@
             </tbody>
         </table>
         <div class="d-flex justify-content-end">
-            <button class="btn w-auto border btn-primary text-link-primary w-100 "
+            <button class="btn w-auto border btn-primary text-link-primary w-100 me-2"
                     role="button"
                     @click="close()">
                 Bezárás

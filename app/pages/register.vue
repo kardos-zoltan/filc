@@ -61,7 +61,7 @@
         </div>
 
         <!-- Register Form -->
-        <div class="row bg-form bg-opacity-25 p-2 rounded-4 col-xl-4 col-lg-6 col-md-8 col-sm-10 col-12 mx-auto border">
+        <div class="row bg-form bg-opacity-25 p-2 px-3 rounded-4 col-xl-4 col-lg-6 col-md-8 col-sm-10 col-12 mx-auto border">
             <Form @submit="onSubmit" :validation-schema="formSchema">
                 
                 <!-- Name -->
@@ -121,7 +121,7 @@
                 </div>
                 
                 <!-- Show password -->
-                <div class="mb-3">
+                <div class="mb-1">
                     <label 
                         for="showPass" 
                         class="form-check-label mb-0 user-select-none"
@@ -138,7 +138,7 @@
                 </div>
                 
                 <!-- Buttons -->
-                <div class="d-flex justify-content-center my-3 mt-4">
+                <div class="d-flex justify-content-center my-3">
                     <button class="btn w-auto border btn-primary me-2 text-link-primary">Regisztráció</button>
                     <NuxtLink class="link" to="/">
                         <button 

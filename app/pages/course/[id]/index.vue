@@ -526,13 +526,15 @@
 
                         <!-- Join code if teacher-->
                         <div class="bg-secondary rounded-4 border p-2" v-if="currentCourse?.role == 'teacher'">
-                            <p class="fs-3 mb-0 text-center user-select-none">
+                            <p class="fs-4 lh-sm mb-0 text-center user-select-none">
                                 Belépési kód
                             </p>
                         
-                            <p class="fs-5 mb-0 bg-amber-50 px-1 rounded">
-                                {{ currentCode?.data.value || "Hiba, próbálja újra" }}
-                            </p>
+                            <div class="d-flex justify-content-center">
+                                <span class="fs-5 mt-1 w-auto text-center mb-0 bg-amber-50 px-2 rounded">
+                                    {{ currentCode?.data.value || "Hiba, próbálja újra" }}
+                                </span>
+                            </div>
                             
                         </div>
                         <hr v-if="currentCourse?.role == 'teacher'">

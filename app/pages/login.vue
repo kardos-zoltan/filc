@@ -54,7 +54,7 @@
         </div>
         
         <!-- Login Form -->
-        <div class="row bg-form bg-opacity-25 p-2 rounded-4 col-xl-4 col-lg-6 col-md-8 col-sm-10 col-12 border">
+        <div class="row bg-form bg-opacity-25 p-2 px-3 rounded-4 col-xl-4 col-lg-6 col-md-8 col-sm-10 col-12 border">
             <Form @submit="onSubmit" :validation-schema="formSchema">            
                 <div class="my-3">
                     <label class="form-label mb-0 w-100">

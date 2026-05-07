@@ -83,12 +83,12 @@
 
 <template>
     <div class="container min-vh-100">
-        <div class="row gap-2 min-vh-100 justify-content-center">
-            <div class="col-12 col-lg-3 col-xl-2 flex-shrink-1">
-                <div class="row mt-2 ms-2 courses">
+        <div class="row gap-lg-2 min-vh-100 justify-content-center">
+            <div class="col-12 col-lg-3 col-xl-2 flex-shrink-1 h-auto">
+                <div class="row mt-2 ms-lg-2 courses">
                     <button
                         class="
-                            course-name btn btn-primary text-link-primary border-0 rounded-3 h-auto d-flex
+                            course-name btn btn-primary text-link-primary border-0 rounded-top-3 rounded-bottom-3 h-auto d-flex
                             align-items-center justify-content-start p-2
                         "
                         data-bs-toggle="dropdown"
