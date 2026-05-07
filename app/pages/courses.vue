@@ -10,16 +10,31 @@
         title: 'Kurzusok',
     });
 
+    // Get user's data
     const user = useUserStore();
     await callOnce(user.fetch);
+    
+    async function logout() {
+        try {
+            await $fetch("/api/auth/logout");
 
+            await navigateTo("/", {
+                replace: true
+            });
+
+            window.location.reload();
+        } catch {}
+    }
+
+    // Get courses data
     const courses = await useFetch<Course[]>("/api/course");
     const coursesData = courses.data;
 
+    // Variable for showing error messages
     const codeError = ref<string | null>(null);
 
+    // Course functions
     async function joinCourse() {
-        console.log(inputValue.value)
         try {
             const res = await $fetch("/api/course/join", {
                 method: "POST",
@@ -57,34 +72,22 @@
         }
     }
 
-    async function logout() {
-        try {
-            await $fetch("/api/auth/logout");
+    // Input modal
+    const inputModal = ref<InstanceType<typeof InputModal> | null>(null);
 
-            await navigateTo("/", {
-                replace: true
-            });
-
-            window.location.reload();
-        } catch {}
-    }
-    
+    // Variables for modal modularity
     const question = ref("");
     const confirmText = ref("");
     const confirmFunction = ref();
-
     const inputLabel = ref("");
     const inputValue = ref("");
-    const textArea = ref(false);
 
-    const inputModal = ref<InstanceType<typeof InputModal> | null>(null);
-
+    // Modal setup functions
     async function setupCreateModal() {
         question.value = "Kurzus létrehozása";
         confirmText.value = "Létrehozás";
         confirmFunction.value = createCourse;
         inputLabel.value = "Kurzus neve:";
-        textArea.value = false;
 
         inputModal.value?.open();
     }
@@ -94,11 +97,11 @@
         confirmText.value = "Belépés";
         confirmFunction.value = joinCourse;
         inputLabel.value = "Kurzus belépési kód:"
-        textArea.value = false;
 
         inputModal.value?.open();
     }
 
+    // Modal reset function
     async function resetInputModal() {
         codeError.value = null;
         question.value = "";
@@ -106,7 +109,6 @@
         confirmFunction.value = null;
         inputLabel.value = "";
         inputValue.value = "";
-        textArea.value = false;
 
         inputModal.value?.close();
     }
@@ -121,7 +123,7 @@
                 :confirm-function="confirmFunction ?? joinCourse"
                 :cancel-function="resetInputModal"
                 :label="inputLabel"
-                :textArea="textArea"
+                :textArea="false"
                 :is-number="false"></InputModal>
 
     <div class="container-fluid">

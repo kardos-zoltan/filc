@@ -62,9 +62,6 @@
     async function submitQuiz(_values: unknown) {
         const values = _values as z.infer<typeof formSchema>;
         
-        console.log(values)
-
-        
         try {
             await $fetch(
                 `/api/course/${route.params.id}/post/quiz` as "/api/course/:course_id/post/quiz",

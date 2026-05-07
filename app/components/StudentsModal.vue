@@ -39,12 +39,21 @@
         close
     })
 
-
     const props = defineProps<{
         students: Student[] | undefined,
         courseId: number | undefined,
         studentToBeViewed: number
     }>();
+    
+    const inBackground = ref(false);
+    const isTeacher = ref(true);
+
+    const emit = defineEmits(["reset-student"]);
+
+    // Make modal invisible when the other opens on top of it
+    async function toggleBackground() {
+        inBackground.value = !inBackground.value;
+    }
 
     async function showStudentGradeModal(student: Student) {
         student.grades = (await $fetch(`/api/course/${props.courseId}/student/${student.user_id}/grades`)) as unknown as Grade[];
@@ -59,15 +68,7 @@
         confirmModal.value?.open();
     }
 
-    const inBackground = ref(false);
-    const isTeacher = ref(true);
-
-    const emit = defineEmits(["reset-student"]);
-
-    async function toggleBackground() {
-        inBackground.value = !inBackground.value;
-    }
-
+    // Show the student's own grades, not the overview meant for teachers
     watch(props, () => {
         if (props.studentToBeViewed != 0) {
             isTeacher.value = false;

@@ -3,7 +3,6 @@
 		post: Omit<Post, "posted_at">
 	}>();
 
-	console.log(post)
 	const content: any = computed(() => JSON.parse(post.content, (key, value) => key === "date" ? Date.parse(value) : value))
 
 	const route = useRoute();
