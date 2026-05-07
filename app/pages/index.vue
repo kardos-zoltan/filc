@@ -19,10 +19,6 @@
             text: "Átlátható információk, erősebb együttműködés.",
             path: "/images/explanation_2.png"
         },
-        {
-            text: "Minden adat egy helyen, mindig kéznél.",
-            path: "/images/explanation_3.png"
-        }
     ])
 </script>
 
