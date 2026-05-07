@@ -580,7 +580,7 @@
                                             >
                                                 <span class="text-link-secondary">
                                                     <i class="fa-solid fa-clipboard"></i>
-                                                    Kvíz létrehozása
+                                                    Dolgozat létrehozása
                                                 </span>
                                             </NuxtLink>
                                         </li>

@@ -128,16 +128,16 @@
                     <p class="m-0">{{ createQuizError }}</p>
                 </div>
                 <div class="row justify-content-center">
-                    <p class="w-auto fs-3 m-0 text-link-secondary">Kvíz létrehozása</p>
+                    <p class="w-auto fs-3 m-0 text-link-secondary">Dolgozat létrehozása</p>
                     <label>
-                        Kvíz címe
+                        Dolgozat címe
                         <Field
                             name="title"
                             type="text"
                             class="form-control mb-1"
-                            placeholder="Kvíz címe"
+                            placeholder="Dolgozat címe"
                         />
-                        <ErrorMessage name="title"><div class="text-danger">Kötelező a kvíznek címet adni!</div></ErrorMessage>
+                        <ErrorMessage name="title"><div class="text-danger">Kötelező a dolgozatnak címet adni!</div></ErrorMessage>
                     </label>
                     <label class="text-link-secondary m-0" for="date">Határidő</label>
                     <div class="d-flex gap-1">
