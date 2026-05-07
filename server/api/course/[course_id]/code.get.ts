@@ -2,14 +2,14 @@ import { z } from "zod"
 import * as crypto from "node:crypto";
 
 const paramsSchema = z.object({
-    course_id: z.int()
+    course_id: z.coerce.number().int()
 })
 
 export default defineEventHandler(async (event): Promise<string> => {
     // Parse params, return if error
     const params = await getValidatedRouterParams(event, paramsSchema.safeParse);
     if (params.error != null) throw createError({
-        status: 400 
+        status: 400
     });
 
     // If not logged in, return 401
@@ -24,11 +24,11 @@ export default defineEventHandler(async (event): Promise<string> => {
         SELECT user_id
         FROM user_courses
         WHERE course_id = ${params.data.course_id}
-        AND user_role = 2
+        AND role_id = 2
     `;
 
     // If the logged in user is not the teacher, return 403
-    if (teacherId.rows?.at(0)?.id !== event.context.auth.user.id) throw createError({
+    if (teacherId.rows?.at(0)?.user_id !== event.context.auth.user.id) throw createError({
         status: 403, 
     });
     
@@ -76,7 +76,7 @@ export default defineEventHandler(async (event): Promise<string> => {
     };
 
     await db.sql`
-        INSERT INTO join_codes (course_id, code, expires_at)
+        INSERT INTO join_codes (course_id, code)
         VALUES (${params.data.course_id}, ${code})
     `;
 

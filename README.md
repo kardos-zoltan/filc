@@ -9,7 +9,7 @@ A filc egy oktatási rendszer és e-napló.
 
 ## Tagok
 
-- Kardos Zoltán
+- Kardos Zoltán (Projekt vezető)
 - Döme Zoltán
 
 ## Futtatás
@@ -27,7 +27,7 @@ npm install
 ```
 
 Majd csináljon egy `filc` nevű adatbázist MySQL-n belül, 
-`utf8mb4_unicode_520_ci` illesztéssel, majd töltse a `db/filc.sql` nevű fájlt.
+`utf8mb4_unicode_520_ci` illesztéssel, majd töltse be a `db/filc.sql` nevű fájlt.
 
 ### Futtatás (fejlesztés)
 

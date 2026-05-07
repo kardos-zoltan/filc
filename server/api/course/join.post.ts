@@ -39,6 +39,7 @@ export default defineEventHandler(async (event) => {
     if (codeResult.rows.length === 0) {
         throw createError({
             status: 404,
+            message: body.data.join_code
         });
     }
 

@@ -16,14 +16,14 @@
     const courses = await useFetch<Course[]>("/api/course");
     const coursesData = courses.data;
 
-    const courseCode = ref("");
     const codeError = ref<string | null>(null);
 
     async function joinCourse() {
+        console.log(inputValue.value)
         try {
             const res = await $fetch("/api/course/join", {
                 method: "POST",
-                body: { join_code: courseCode.value }
+                body: { join_code: inputValue.value }
             });
 
             await navigateTo(`/course/${res}`);

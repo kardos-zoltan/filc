@@ -122,14 +122,13 @@
         }
     }
 
-    const courseCode = ref("");
     const codeError = ref<string | null>(null);
 
     async function joinCourse() {
         try {
             const res = await $fetch("/api/course/join", {
                 method: "POST",
-                body: { join_code: courseCode.value }
+                body: { join_code: inputValue.value }
             });
 
             await navigateTo(`/course/${res}`);
@@ -143,6 +142,11 @@
             }
         }
     }
+
+    const currentCode = 
+        (currentCourse?.value?.role == "teacher")
+        ? await useFetch(`/api/course/${route.params.id}/code`)
+        : ref(undefined);
 
     async function createCourse() {
         try {
@@ -526,6 +530,19 @@
                         
                         <hr>
 
+                        <!-- Join code if teacher-->
+                        <div class="bg-secondary rounded-4 border p-2" v-if="currentCourse?.role == 'teacher'">
+                            <p class="fs-3 mb-0 text-center user-select-none">
+                                Belépési kód
+                            </p>
+                        
+                            <p class="fs-5 mb-0 bg-amber-50 px-1 rounded">
+                                {{ currentCode?.data.value || "Hiba, próbálja újra" }}
+                            </p>
+                            
+                        </div>
+                        <hr v-if="currentCourse?.role == 'teacher'">
+                        
                         <!-- Leave or delete button -->
                         <button 
                             class="btn bg-danger bg-opacity-50 rounded-3 p-3 py-2 border w-100"
